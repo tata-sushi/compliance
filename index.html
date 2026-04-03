@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Governança de Processos — TATÁ Sushi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --citric: #CFFF00;
+    --carbon: #35383F;
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray-light: #f5f5f5;
+    --gray-mid: #e0e0e0;
+    --gray-text: #6b6b6b;
+    --green-label: #3a7a3a;
+    /* login */
+    --bg-login: #f5f5f5;
+    --surface: #ffffff;
+    --surface2: #f9f9f9;
+    --border-login: #e0e0e0;
+    --accent-login: #3a7a3a;
+    --muted-login: #6b6b6b;
+    --error-login: #c0392b;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg-login);
+    padding: 24px;
+  }
+  #app-screen { display: none; }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border-login);
+    border-radius: 12px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+  }
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo .login-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: #0a0a0a;
+    margin-bottom: 6px;
+  }
+  .login-logo .login-sub {
+    color: var(--muted-login);
+    font-size: .7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .login-field { margin-bottom: 16px; }
+  .login-field label {
+    display: block;
+    font-size: .75rem;
+    color: var(--muted-login);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .login-field select,
+  .login-field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border-login);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #0a0a0a;
+    font-size: .95rem;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color .2s;
+    appearance: none;
+  }
+  .login-field select:focus,
+  .login-field input:focus { border-color: var(--accent-login); }
+  .btn-login {
+    width: 100%;
+    background: var(--accent-login);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+    letter-spacing: 1px;
+    transition: opacity .2s, box-shadow .2s;
+  }
+  .btn-login:hover { opacity: .88; box-shadow: 0 4px 16px rgba(58,122,58,.25); }
+  .login-error {
+    background: rgba(224,92,92,.12);
+    border: 1px solid var(--error-login);
+    border-radius: 8px;
+    color: var(--error-login);
+    font-size: .85rem;
+    padding: 10px 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--gray-mid);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .nav-logo span { color: var(--green-label); }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-text);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--black); }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── PAGE 1: INTRO ── */
+  .intro-page {
+    padding-top: 56px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .intro-content {
+    max-width: 680px;
+    width: 100%;
+    padding: 64px 32px;
+    text-align: center;
+  }
+
+  .intro-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    color: var(--black);
+  }
+
+  .intro-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green-label);
+    margin-bottom: 28px;
+  }
+
+  .intro-image {
+    width: 100%;
+    height: 240px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-bottom: 28px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .intro-image-inner {
+    width: 100%;
+    height: 240px;
+    border-radius: 12px;
+    background: 
+      linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+        transparent 1px, transparent 60px
+      ),
+      linear-gradient(135deg, #2a1a0a 0%, #3d2b1a 30%, #1a1200 60%, #0a1a0a 100%);
+    position: relative;
+  }
+
+  .intro-image-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='20' r='3' fill='rgba(255,200,100,0.4)'/%3E%3Ccircle cx='60' cy='15' r='2' fill='rgba(255,200,100,0.3)'/%3E%3Ccircle cx='100' cy='18' r='2.5' fill='rgba(255,200,100,0.35)'/%3E%3Ccircle cx='140' cy='12' r='2' fill='rgba(255,200,100,0.3)'/%3E%3Ccircle cx='170' cy='20' r='3' fill='rgba(255,200,100,0.4)'/%3E%3C/svg%3E") center/cover;
+    border-radius: 12px;
+  }
+
+  .intro-body {
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--black);
+    margin-bottom: 20px;
+  }
+
+  .intro-body p + p { margin-top: 14px; }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: 1.5px solid var(--black);
+    border-radius: 100px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--black);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .btn-primary:hover {
+    background: var(--black);
+    color: var(--citric);
+  }
+  .btn-primary .icon { font-size: 14px; }
+
+  /* ── PAGE 2: ÍNDICE ── */
+  .index-page {
+    padding-top: 56px;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .page-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px 0;
+  }
+
+  .breadcrumb {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green-label);
+    margin-bottom: 12px;
+  }
+  .breadcrumb span { color: var(--gray-text); }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--gray-text);
+    max-width: 820px;
+    margin-bottom: 10px;
+  }
+
+  .page-hint {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 32px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    border: 1px solid var(--gray-mid);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+    background: var(--white);
+  }
+  .card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+
+  .card-img {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Dark cinematic placeholders por card */
+  .card-img-placeholder {
+    width: 100%;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-placeholder.c1 { background: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%); }
+  .card-img-placeholder.c2 { background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #0a0f1a 100%); }
+  .card-img-placeholder.c3 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+  .card-img-placeholder.c4 { background: linear-gradient(135deg, #0a1628 0%, #00d2ff 50%, #004080 100%); background: linear-gradient(135deg, #003366 0%, #001a33 100%); }
+  .card-img-placeholder.c5 { background: linear-gradient(135deg, #001a33 0%, #002b5c 50%, #003d7a 100%); }
+  .card-img-placeholder.c6 { background: linear-gradient(135deg, #1a0a00 0%, #331400 50%, #0d0500 100%); }
+  .card-img-placeholder.c7 { background: linear-gradient(135deg, #0a1a0a 0%, #0d2b0d 50%, #001400 100%); }
+
+  .card-img-icon {
+    font-size: 32px;
+    opacity: 0.35;
+  }
+
+  .card-body {
+    padding: 14px 14px 6px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+
+  .card-desc {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--gray-text);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .btn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+    padding: 8px 16px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 0 14px 0;
+    transition: background 0.2s;
+  }
+  .btn-card:hover { background: var(--green-label); }
+
+  /* ── PAGE 3: KPIs ── */
+  .kpi-page {
+    padding-top: 56px;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .dept-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .dept-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--gray-mid);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    background: var(--white);
+  }
+  .dept-chip:hover {
+    border-color: var(--black);
+    background: var(--gray-light);
+  }
+
+  .dept-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dept-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--black);
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .dept-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1.3;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .dept-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 480px) {
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page.active > * {
+    animation: fadeUp 0.4s ease both;
+  }
+  .card { animation: fadeUp 0.4s ease both; }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <p class="login-title">Governança de Processos</p>
+      <p class="login-sub">TATÁ Sushi</p>
+    </div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <select id="login-select">
+        <option value="">— Selecione —</option>
+        <option value="Fabio Yuzo">Fabio Yuzo</option>
+        <option value="Cinthia">Cinthia</option>
+        <option value="Victor">Victor</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app-screen">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">TATÁ <span>Sushi</span></div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('intro')" class="active" id="nav-intro">Início</a></li>
+    <li><a href="#" onclick="showPage('index')" id="nav-index">Índice</a></li>
+    <li><a href="#" onclick="showPage('kpi')" id="nav-kpi">KPIs</a></li>
+  </ul>
+</nav>
+
+<!-- ══ PAGE 1: INTRO ══ -->
+<div class="page active" id="page-intro">
+  <div class="intro-page">
+    <div class="intro-content">
+      <h1 class="intro-title">Governança de Processos</h1>
+      <p class="intro-label">Introdução</p>
+
+      <div class="intro-image">
+        <div class="intro-image-inner"></div>
+      </div>
+
+      <div class="intro-body">
+        <p><strong>Governança de Processos</strong> é a maneira pela qual consolidaremos as iniciativas da <strong>gestão de processos do Tatá Sushi</strong>, com papéis, diretrizes e mecanismos que orientarão como os processos devem ser definidos, executados, monitorados e aprimorados.</p>
+        <p><strong>A Governança de Processos garantirá</strong> a padronização e a melhoria contínua das rotinas, além do alinhamento operacional com os objetivos estratégicos da companhia, assegurando <strong>que cada área gere valor com eficiência e qualidade consistentes.</strong></p>
+      </div>
+
+      <button class="btn-primary" onclick="showPage('index')">
+        Começar
+        <span class="icon">⚡</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: ÍNDICE ══ -->
+<div class="page" id="page-index">
+  <div class="index-page">
+    <div class="page-inner">
+      <p class="breadcrumb">Governança de Processo <span>› Índice</span></p>
+      <h1 class="page-title">Visão Geral da Governança</h1>
+      <p class="page-desc">Acesse o menu e explore o compilado de informações e o funcionamento da Governança de Processos. Aqui estão reunidos conceitos, problemas, estratégias, responsabilidades, processos, fluxos e etapas, sistemas, ferramentas, hierarquias e referências, tudo de forma interligada, para oferecer uma visão macro da operação e garantir que cada decisão seja tomada com base em dados e alinhamento estratégico.</p>
+      <p class="page-hint">Explore para encontrar instruções detalhadas sobre cada item!</p>
+
+      <div class="cards-grid">
+
+        <div class="card" onclick="alert('Conceitos & Informações')">
+          <div class="card-img-placeholder c1">
+            <span class="card-img-icon">🗂️</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Conceitos & Informações</p>
+            <p class="card-desc">Conceitos, informações e documentações de apoio explicando sobre funcionamento das ferramentas e processos de execução. Utilize para consulta ou em caso de dúvidas.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="alert('Institucional')">
+          <div class="card-img-placeholder c2">
+            <span class="card-img-icon">🏛️</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Institucional</p>
+            <p class="card-desc">Reúne informações oficiais da nossa estrutura, missão, visão, valores, políticas internas, identidade da marca, papelaria. Este espaço consolida diretrizes, responsabilidades e orientações estratégicas que sustentam a Governança de Processos.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="alert('Áreas & Cargos')">
+          <div class="card-img-placeholder c3">
+            <span class="card-img-icon">👥</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Áreas & Cargos</p>
+            <p class="card-desc">Definição das áreas, suas funções e inter-relações. Inclui o organograma oficial, descrição de cargos, responsabilidades e linhas de reporte. Este espaço garante clareza sobre papéis e facilita a coordenação entre setores.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="showPage('kpi')">
+          <div class="card-img-placeholder c4">
+            <span class="card-img-icon">📊</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">KPI's</p>
+            <p class="card-desc">Indicadores de desempenho para medir a eficiência, a qualidade e os resultados dos processos. Este espaço apresenta métricas estratégicas alinhadas aos objetivos da organização, permitindo monitoramento contínuo.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="alert('Ferramentas & Sistemas')">
+          <div class="card-img-placeholder c5">
+            <span class="card-img-icon">⚙️</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Ferramentas & Sistemas</p>
+            <p class="card-desc">Centraliza informações sobre as soluções tecnológicas e ferramentas de apoio utilizadas na gestão e execução dos processos. Inclui instruções de uso, responsáveis pela manutenção, integração entre sistemas e métricas de desempenho.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="alert('Parceiros & Fornecedores')">
+          <div class="card-img-placeholder c6">
+            <span class="card-img-icon">🤝</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Parceiros & Fornecedores</p>
+            <p class="card-desc">Informações sobre parceiros estratégicos e fornecedores do TATÁ, apoiando a gestão de contratos e serviços. Inclui dados de contato, escopo de fornecimento e responsáveis internos pelo relacionamento.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="alert('Compliance')">
+          <div class="card-img-placeholder c7">
+            <span class="card-img-icon">🛡️</span>
+          </div>
+          <div class="card-body">
+            <p class="card-title">Compliance</p>
+            <p class="card-desc">Diretrizes que asseguram a integridade e a ética nas operações do TATÁ. Inclui políticas de conduta, prevenção de riscos e conformidade com leis e normas internas. Garantindo transparência nas relações e comprometimento com os valores da marca.</p>
+            <button class="btn-card">Clique aqui ⚡</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: KPIs ══ -->
+<div class="page" id="page-kpi">
+  <div class="kpi-page">
+    <div class="page-inner">
+      <p class="breadcrumb">Governança de Processo <span>› Índice ›</span> KPI's</p>
+      <h1 class="page-title">Indicadores de Desempenho (KPIs)</h1>
+      <p class="page-desc">Os Key Performance Indicators (KPIs) são métricas essenciais que traduzem a performance das nossas atividades em resultados mensuráveis, garantindo clareza sobre o impacto de cada processo no atingimento dos objetivos estratégicos.</p>
+      <p class="page-desc" style="margin-top:12px;">Ao acompanhar os KPIs, fortalecemos a gestão baseada em dados, possibilitando decisões mais assertivas, melhoria contínua e alinhamento entre pessoas, processos e resultados. Eles permitem identificar pontos fortes, antecipar desafios e assegurar que nossa operação esteja em sintonia com a missão e os valores do TATÁ Sushi.</p>
+
+      <p class="page-hint" style="margin-top:28px;">Departamentos</p>
+
+      <div class="dept-grid">
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M8 21l4-4 4 4"/></svg>
+          </div>
+          <span class="dept-label">Atendimento ao cliente</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 22h8M12 2v4M4.9 5.1l2.8 2.8M19.1 5.1l-2.8 2.8M2 12h4M18 12h4M7 17a5 5 0 0 1 10 0"/></svg>
+          </div>
+          <span class="dept-label">Bar</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <span class="dept-label">Caixa</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <span class="dept-label">Compras</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <span class="dept-label">Cozinha</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6h6v6"/></svg>
+          </div>
+          <span class="dept-label">Delivery</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><rect x="1" y="8" width="22" height="8" rx="1"/></svg>
+          </div>
+          <span class="dept-label">Estoque</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <span class="dept-label">Financeiro</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </div>
+          <span class="dept-label">Limpeza</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          </div>
+          <span class="dept-label">Operação</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v8M8 12h8"/></svg>
+          </div>
+          <span class="dept-label">Poke</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <span class="dept-label">Recursos Humanos</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+          </div>
+          <span class="dept-label">Salão</span>
+        </div>
+
+        <div class="dept-chip">
+          <div class="dept-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <span class="dept-label">Sushibar</span>
+        </div>
+
+      </div>
+
+      <button class="btn-primary" style="margin-top:40px;" onclick="showPage('index')">
+        ← Voltar ao Índice
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app-screen -->
+
+<script>
+  const USERS = [
+    { name: 'Fabio Yuzo',  password: '1234' },
+    { name: 'Cinthia',     password: '5678' },
+    { name: 'Victor',      password: '842867' }
+  ];
+
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  function doLogin() {
+    const sel = document.getElementById('login-select').value;
+    const pwd = document.getElementById('login-password').value;
+    const user = USERS.find(u => u.name === sel && u.password === pwd);
+    const errEl = document.getElementById('login-error');
+    if (user) {
+      errEl.classList.remove('show');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      showPage('intro');
+    } else {
+      errEl.classList.add('show');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+    }
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + id);
+    if (navEl) navEl.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
