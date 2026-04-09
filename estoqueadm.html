@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Estoque · TATÁ</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #F5F5F7;
+  --surface: #FFFFFF;
+  --carbon:  #35383F;
+  --citric:  #CFFF00;
+  --ink:     #1D1D1F;
+  --ink2:    #3A3A3C;
+  --ink3:    #6E6E73;
+  --ink4:    #AEAEB2;
+  --border:  #E5E5EA;
+  --danger:  #FF3B30;
+  --warn:    #FF9500;
+  --r:       14px;
+}
+
+body { font-family: 'Geist', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--carbon);
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle grid texture */
+#login-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(207,255,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(207,255,0,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* citric glow blob */
+#login-screen::after {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(207,255,0,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.login-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 36px 32px 32px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 1;
+  animation: cardIn 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes cardIn {
+  from { opacity:0; transform: translateY(20px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.login-logo {
+  width: 52px; height: 52px;
+  background: var(--carbon);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 20px;
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.login-sub {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: var(--ink4);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 28px;
+}
+
+/* user selector */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.user-btn:hover { border-color: var(--carbon); background: var(--surface); }
+.user-btn.selected { border-color: var(--carbon); background: var(--surface); box-shadow: 0 0 0 3px rgba(53,56,63,0.08); }
+
+.user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-family: 'Geist Mono', monospace;
+}
+
+.user-avatar.admin { background: var(--carbon); color: var(--citric); }
+.user-avatar.lider { background: #EFF6FF; color: #3B82F6; }
+
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.user-role { font-size: 11px; color: var(--ink3); margin-top: 1px; }
+
+.user-arrow { font-size: 14px; color: var(--ink4); flex-shrink: 0; }
+
+/* pin area */
+.pin-section { display: none; }
+.pin-section.show { display: block; }
+
+.pin-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink4);
+  margin-bottom: 8px;
+}
+
+.pin-who {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.pin-dot-indicator {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pin-dot-indicator.filled { background: var(--carbon); border-color: var(--carbon); }
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.pin-key {
+  height: 52px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-family: 'Geist Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, transform 0.1s;
+  user-select: none;
+}
+
+.pin-key:active { background: var(--border); transform: scale(0.94); }
+.pin-key.zero { grid-column: 2; }
+.pin-key.del { background: transparent; border-color: transparent; color: var(--ink3); font-size: 14px; }
+
+.pin-error {
+  font-size: 12px;
+  color: var(--danger);
+  text-align: center;
+  min-height: 18px;
+  font-weight: 500;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
+  color: var(--ink4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.login-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: var(--ink4);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ══════════════════════════════════════
+   APP (hidden until logged in)
+══════════════════════════════════════ */
+#app { display: none; }
+#app.visible { display: block; }
+
+/* ── HEADER ── */
+header {
+  background: rgba(245,245,247,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+  padding: 0 16px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+
+.h-brand { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.logo { width: 32px; height: 32px; background: var(--carbon); border-radius: 8px; display: grid; place-items: center; font-size: 15px; flex-shrink: 0; }
+.h-title { font-size: 14px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-sub { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); letter-spacing: 0.04em; text-transform: uppercase; }
+
+.h-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* profile chip */
+.profile-wrap { position: relative; }
+
+.profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px 4px 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  user-select: none;
+}
+.profile-chip:hover { border-color: var(--carbon); }
+
+.chip-avatar {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  font-family: 'Geist Mono', monospace;
+  flex-shrink: 0;
+}
+.chip-avatar.admin { background: var(--carbon); color: var(--citric); }
+.chip-avatar.lider { background: #EFF6FF; color: #3B82F6; }
+
+.chip-name { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.chip-role { font-size: 9px; color: var(--ink4); font-family: 'Geist Mono', monospace; }
+.chip-chevron { font-size: 10px; color: var(--ink4); margin-left: 2px; }
+
+/* dropdown menu */
+.profile-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 180px;
+  z-index: 999;
+  overflow: hidden;
+  animation: menuIn 0.15s cubic-bezier(0.16,1,0.3,1);
+}
+.profile-menu.open { display: block; }
+@keyframes menuIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+.menu-header {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.menu-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.menu-role { font-size: 11px; color: var(--ink3); font-family: 'Geist Mono', monospace; margin-top: 1px; }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.menu-item:hover { background: var(--bg); }
+.menu-item.danger { color: var(--danger); }
+.menu-item.danger:hover { background: #FFF1F0; }
+
+/* unit badge — líder only */
+.unit-badge {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 99px;
+  padding: 4px 10px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #1D4ED8;
+  white-space: nowrap;
+}
+.unit-badge.show { display: flex; }
+
+.btn-new { background: var(--carbon); color: #fff; border: none; padding: 0 14px; height: 34px; border-radius: 8px; font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.plus-badge { width: 16px; height: 16px; background: var(--citric); border-radius: 4px; display: grid; place-items: center; font-size: 13px; color: var(--carbon); font-weight: 800; flex-shrink: 0; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 4px; padding: 12px 16px 0; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; color: var(--ink3); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.tab.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.09), 0 0 0 1px var(--border); }
+
+/* ── CONTENT ── */
+.content { padding: 16px 16px 60px; }
+
+/* admin-only elements */
+.admin-only { display: none; }
+
+/* ── CONFIG ── */
+.config-strip { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.g-icon { width: 18px; height: 18px; background: #1EA362; border-radius: 4px; display: grid; place-items: center; font-size: 9px; font-weight: 800; color: white; flex-shrink: 0; }
+.config-label { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); text-transform: uppercase; letter-spacing: 0.04em; flex-shrink: 0; }
+.config-in { flex: 1; border: none; background: transparent; font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink); outline: none; min-width: 0; }
+.config-in::placeholder { color: var(--ink4); }
+.config-btn { background: var(--carbon); color: #fff; border: none; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-family: 'Geist', sans-serif; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+
+/* unit filter bar — admin only */
+.unit-filter {
+  display: none;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.unit-filter.show { display: flex; }
+.uf-btn {
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink3);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.uf-btn.active { background: var(--carbon); color: #fff; border-color: var(--carbon); }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+/* 5º KPI card centralizado no mobile */
+.kpi:nth-child(5) { grid-column: 1 / -1; max-width: calc(50% - 5px); }
+.kpi { background: var(--surface); border-radius: var(--r); padding: 16px; border: 1px solid var(--border); position: relative; overflow: hidden; animation: fadeUp 0.4s both; }
+.kpi:nth-child(1){animation-delay:.05s}.kpi:nth-child(2){animation-delay:.09s}.kpi:nth-child(3){animation-delay:.13s}.kpi:nth-child(4){animation-delay:.17s}.kpi:nth-child(5){animation-delay:.21s}
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.kpi-accent { position: absolute; top: 0; left: 16px; width: 24px; height: 3px; background: var(--citric); border-radius: 0 0 3px 3px; }
+.kpi-label { font-size: 11px; color: var(--ink3); font-weight: 500; margin-bottom: 1px; line-height: 1.2; }
+.kpi-hint { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); margin-bottom: 10px; }
+.kpi-num { font-size: 38px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+.kpi-money { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink3); line-height: 1.4; }
+.kpi-money strong { color: var(--ink); font-weight: 600; }
+
+/* ── QUAD GRID ── */
+.quad-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.quad { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); overflow: hidden; animation: fadeUp 0.4s both; }
+.quad:nth-child(1){animation-delay:.25s}.quad:nth-child(2){animation-delay:.30s}.quad:nth-child(3){animation-delay:.35s}.quad:nth-child(4){animation-delay:.40s}.quad:nth-child(5){animation-delay:.45s}
+.quad-head { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.quad-icon { font-size: 14px; }
+.quad-title { font-size: 13px; font-weight: 600; letter-spacing: -0.02em; }
+.quad-body { padding: 10px 16px 14px; }
+.bar-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.bar-name { font-size: 12px; color: var(--ink2); flex: 0 0 38%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-name.r1 { font-weight: 600; color: var(--ink); }
+.bar-track { flex: 1; height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden; min-width: 0; }
+.bar-fill { height: 100%; border-radius: 99px; background: var(--carbon); opacity: 0.15; transition: width 0.9s cubic-bezier(0.16,1,0.3,1); }
+.bar-fill.r1{opacity:1}.bar-fill.r2{opacity:.55}.bar-fill.r3{opacity:.35}
+.bar-qty { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--ink3); flex-shrink: 0; width: 26px; text-align: right; }
+.bar-qty.r1 { color: var(--ink); font-weight: 600; }
+
+/* ── SIZES ── */
+.sizes-wrap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.sizes-card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 16px; animation: fadeUp 0.4s 0.5s both; }
+.sizes-title { font-size: 13px; font-weight: 600; letter-spacing: -0.02em; }
+.sizes-sub { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink4); margin-top: 2px; margin-bottom: 14px; }
+.sizes-cols { display: flex; align-items: flex-end; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.sizes-cols::-webkit-scrollbar { display: none; }
+.size-col { flex: 0 0 auto; min-width: 32px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.size-bar-wrap { width: 28px; background: var(--bg); border-radius: 5px; height: 52px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+.size-bar { border-radius: 5px 5px 0 0; background: var(--carbon); opacity: 0.18; transition: height 1s cubic-bezier(0.16,1,0.3,1); }
+.size-bar.peak{opacity:1}.size-bar.high{opacity:.5}
+.size-num { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink3); font-weight: 500; }
+.size-num.peak { color: var(--ink); font-weight: 700; }
+.size-lbl { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); }
+
+/* ── FOOTER ── */
+footer { border-top: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.f-brand { display: flex; align-items: center; gap: 7px; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); text-transform: uppercase; letter-spacing: 0.04em; }
+.f-dot { width: 6px; height: 6px; background: var(--citric); border-radius: 50%; border: 1.5px solid #A8D400; flex-shrink: 0; }
+.f-date { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--ink4); }
+
+/* ══ MODAL ══ */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 640px; max-height: 94vh; overflow-y: auto; -webkit-overflow-scrolling: touch; box-shadow: 0 -8px 40px rgba(0,0,0,0.18); animation: sheetUp 0.3s cubic-bezier(0.16,1,0.3,1); display: flex; flex-direction: column; }
+@keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 12px auto 0; flex-shrink: 0; }
+.m-top { padding: 14px 20px 0; flex-shrink: 0; }
+.m-eyebrow { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.m-title { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
+.m-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 20px 0; flex-shrink: 0; }
+.mode-tabs { display: flex; gap: 6px; padding: 14px 20px 0; flex-shrink: 0; }
+.mode-tab { flex: 1; height: 38px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.mode-tab.active { background: var(--carbon); color: #fff; border-color: var(--carbon); }
+.mode-tab .tab-dot { width: 8px; height: 8px; background: var(--citric); border-radius: 50%; display: none; flex-shrink: 0; }
+.mode-tab.active .tab-dot { display: block; }
+.m-panel { display: none; flex: 1; overflow-y: auto; padding: 0 20px; }
+.m-panel.active { display: block; }
+
+/* kit */
+.cargo-wrap { margin: 14px 0 4px; }
+.kit-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.kit-item { background: var(--bg); border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); }
+.kit-item-top { display: flex; align-items: center; gap: 10px; }
+.kit-item-info { flex: 1; min-width: 0; }
+.kit-item-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kit-item-sub { font-size: 10px; color: var(--ink3); margin-top: 1px; font-family: 'Geist Mono', monospace; display: flex; align-items: center; gap: 6px; }
+.epi-badge { background: var(--warn); color: #fff; border-radius: 4px; padding: 1px 5px; font-size: 9px; font-weight: 700; }
+.kit-item-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.qty-control { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+.qty-btn { width: 30px; height: 30px; background: var(--surface); border: none; font-size: 16px; color: var(--ink); cursor: pointer; display: grid; place-items: center; font-weight: 500; }
+.qty-btn:active { background: var(--bg); }
+.qty-val { width: 34px; height: 30px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); background: var(--surface); text-align: center; font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 600; color: var(--ink); outline: none; -moz-appearance: textfield; }
+.qty-val::-webkit-inner-spin-button,.qty-val::-webkit-outer-spin-button{-webkit-appearance:none}
+.tam-badge { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--ink4); }
+.tam-sel { height: 30px; padding: 0 6px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--ink); outline: none; cursor: pointer; -webkit-appearance: none; min-width: 54px; }
+.ca-row { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+.ca-label { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--warn); font-weight: 600; white-space: nowrap; }
+.ca-input { flex: 1; height: 32px; padding: 0 10px; border: 1.5px solid var(--warn); border-radius: 8px; background: var(--surface); font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--ink); outline: none; min-width: 0; }
+.ca-input.error { border-color: var(--danger); }
+.kit-empty { text-align: center; padding: 28px 0; color: var(--ink4); font-size: 13px; }
+.kit-empty span { font-size: 26px; display: block; margin-bottom: 6px; }
+
+/* livre */
+.lote-head { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
+.lote-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink4); }
+.lote-count { display: inline-flex; align-items: center; background: var(--citric); color: var(--carbon); border-radius: 99px; padding: 2px 9px; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 700; }
+.livre-list { display: flex; flex-direction: column; gap: 8px; }
+.livre-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; position: relative; }
+.remove-btn { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(255,59,48,0.1); border: none; border-radius: 6px; color: var(--danger); font-size: 12px; cursor: pointer; display: grid; place-items: center; }
+.livre-row { display: grid; gap: 7px; margin-bottom: 7px; }
+.livre-row:last-child{margin-bottom:0}
+.livre-row.c2{grid-template-columns:1fr 1fr}
+.livre-row.c3{grid-template-columns:1fr 1fr 1fr}
+.livre-item select,.livre-item input[type=number],.livre-item input[type=text]{height:38px;padding:0 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-family:'Geist',sans-serif;font-size:13px;color:var(--ink);outline:none;width:100%;-webkit-appearance:none}
+.livre-item select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23AEAEB2' fill='none' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-color:var(--surface);padding-right:28px;cursor:pointer}
+.livre-item select:focus,.livre-item input:focus{border-color:var(--carbon)}
+.livre-ca-row{display:none;margin-top:4px}
+.livre-ca-row.visible{display:flex;align-items:center;gap:8px}
+.livre-ca-input{flex:1;height:36px;padding:0 10px;border:1.5px solid var(--warn);border-radius:8px;background:var(--surface);font-family:'Geist Mono',monospace;font-size:12px;color:var(--ink);outline:none}
+.livre-ca-input.error{border-color:var(--danger)}
+.btn-add-item{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;border:1.5px dashed var(--border);border-radius:10px;background:transparent;width:100%;cursor:pointer;font-family:'Geist',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);margin-top:8px}
+.btn-add-item:active{background:var(--bg)}
+
+/* shared fields */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:500;color:var(--ink3)}
+.field input,.field select{height:42px;padding:0 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'Geist',sans-serif;font-size:14px;color:var(--ink);outline:none;width:100%;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--carbon);background:var(--surface)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23AEAEB2' fill='none' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:var(--bg);padding-right:34px;cursor:pointer}
+.field select:focus{background-color:var(--surface)}
+.f-section{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink4);margin:14px 0 10px;display:flex;align-items:center;gap:10px}
+.f-section::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* modal footer */
+.m-footer{padding:14px 20px 32px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);gap:12px;flex-shrink:0;background:var(--surface)}
+.sheets-ref{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink4);text-decoration:none;font-family:'Geist Mono',monospace}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.btn-cancel{height:44px;padding:0 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;font-family:'Geist',sans-serif;font-size:14px;font-weight:500;color:var(--ink3);cursor:pointer}
+.btn-save{height:44px;padding:0 20px;background:var(--carbon);border:none;border-radius:10px;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.btn-save:disabled{opacity:.4}
+.btn-dot{width:8px;height:8px;background:var(--citric);border-radius:50%;flex-shrink:0}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rot .6s linear infinite;display:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* success banner */
+.success-banner{display:none;margin:0 20px 20px;background:#F0FFF4;border:1px solid #86EFAC;border-radius:12px;padding:16px}
+.success-banner.show{display:block}
+.sb-title{font-size:14px;font-weight:700;color:#166534;margin-bottom:4px}
+.sb-sub{font-size:12px;color:#166534;opacity:.8;margin-bottom:12px}
+.btn-recibo{display:flex;align-items:center;gap:8px;height:40px;padding:0 18px;background:var(--carbon);border:none;border-radius:10px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;width:fit-content}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--carbon);color:#fff;border-radius:99px;padding:11px 20px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.22);opacity:0;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.err{background:var(--danger)}
+
+/* recibo print */
+#recibo{display:none}
+@media print{
+  body>*:not(#recibo){display:none!important}
+  #recibo{display:block!important;font-family:'Geist','Helvetica Neue',Arial,sans-serif;color:#000;padding:32px;max-width:720px;margin:0 auto}
+  .rp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #000}
+  .rp-logo{width:44px;height:44px;background:#35383F;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+  .rp-brand{font-size:18px;font-weight:700;letter-spacing:-.02em}
+  .rp-brand-sub{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+  .rp-doc{text-align:right;font-size:11px;color:#666;line-height:1.6}
+  .rp-doc strong{color:#000;font-size:13px}
+  .rp-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;padding:10px 14px;background:#35383F;color:#fff;border-radius:6px}
+  .rp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+  .rp-box{border:1px solid #ddd;border-radius:6px;padding:10px 12px}
+  .rp-box-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:4px}
+  .rp-box-val{font-size:13px;font-weight:600}
+  .rp-table{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:12px}
+  .rp-table thead tr{background:#35383F;color:#fff}
+  .rp-table th{padding:8px 10px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .rp-table td{padding:8px 10px;border-bottom:1px solid #eee}
+  .rp-table tbody tr:nth-child(even){background:#f9f9f9}
+  .rp-total{display:flex;justify-content:flex-end;margin-bottom:28px}
+  .rp-total-box{background:#f5f5f5;border-radius:8px;padding:10px 16px;font-size:13px}
+  .rp-termo{font-size:11px;color:#444;line-height:1.6;margin-bottom:28px;padding:12px;border:1px solid #ddd;border-radius:6px;background:#fafafa}
+  .rp-assinaturas{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:8px}
+  .rp-ass{border-top:1.5px solid #000;padding-top:8px}
+  .rp-ass-label{font-size:11px;color:#444}
+  .rp-ass-name{font-size:12px;font-weight:600;margin-top:4px}
+  .rp-ass-sub{font-size:10px;color:#888}
+  .rp-footer{margin-top:32px;padding-top:12px;border-top:1px solid #ddd;font-size:9px;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:.08em}
+}
+
+/* desktop */
+@media screen and (min-width:768px){
+  header{padding:0 40px;height:60px}
+  .logo{width:36px;height:36px;font-size:17px}
+  .h-title{font-size:15px}
+  .tabs{padding:20px 40px 0}
+  .tab{font-size:13px;padding:7px 16px}
+  .content{padding:24px 40px 60px}
+  .kpi-grid{grid-template-columns:repeat(5,1fr);gap:12px}
+  .kpi-num{font-size:44px}
+  .quad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .bar-name{flex:0 0 130px}
+  footer{padding:14px 40px}
+  .overlay{align-items:center}
+  .modal{border-radius:20px;width:620px;max-height:88vh;animation:modalIn .28s cubic-bezier(.16,1,.3,1)}
+  @keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .modal-handle{display:none}
+  .toast{bottom:28px;left:auto;right:28px;transform:translateY(80px)}
+  .toast.show{transform:translateY(0)}
+}
+@media screen and (min-width:1100px){
+  .quad-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+/* ── ALERT PANEL ── */
+.alert-panel {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: fadeUp 0.4s both;
+}
+.alert-panel.show { display: block; }
+
+.alert-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #FFF7ED;
+}
+.alert-head-left { display: flex; align-items: center; gap: 8px; }
+.alert-head-title { font-size: 13px; font-weight: 600; color: #92400E; }
+.alert-count { background: #F97316; color: #fff; border-radius: 99px; padding: 2px 8px; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 700; }
+.alert-toggle { font-size: 11px; color: #92400E; cursor: pointer; font-family: 'Geist Mono', monospace; background: none; border: none; }
+
+.alert-body { padding: 10px 16px 14px; }
+.alert-unit { margin-bottom: 10px; }
+.alert-unit:last-child { margin-bottom: 0; }
+.alert-unit-name { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink4); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.alert-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.alert-item {
+  display: flex; align-items: center; gap: 5px;
+  background: #FEF2F2; border: 1px solid #FECACA;
+  border-radius: 6px; padding: 4px 8px;
+  font-size: 11px; color: #991B1B;
+}
+.alert-item-dot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; flex-shrink: 0; }
+.alert-item-name { font-weight: 500; }
+.alert-item-qty { font-family: 'Geist Mono', monospace; opacity: 0.7; }
+
+/* ── TRANSFER FIELDS ── */
+.transfer-row {
+  display: none;
+  padding: 10px 20px 0;
+  flex-shrink: 0;
+}
+.transfer-row.show { display: block; }
+.transfer-arrow {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border-radius: 10px; padding: 10px 14px;
+  border: 1px solid var(--border);
+  font-size: 13px; color: var(--ink3);
+}
+.transfer-arrow strong { color: var(--ink); }
+.t-arrow { font-size: 18px; color: var(--citric); background: var(--carbon); border-radius: 6px; padding: 2px 8px; }
+
+/* ── SALDO INSUFICIENTE ── */
+.saldo-error {
+  display: none;
+  margin: 0 20px 12px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.saldo-error.show { display: block; }
+.saldo-error-title { font-size: 12px; font-weight: 700; color: #991B1B; margin-bottom: 6px; }
+.saldo-error-item { font-size: 11px; color: #991B1B; line-height: 1.8; display: flex; align-items: center; gap: 6px; }
+.saldo-error-item::before { content: '•'; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🐢</div>
+    <div class="login-title">TATÁ Sushi</div>
+    <div class="login-sub">Estoque Administrativo · Gente &amp; Gestão</div>
+
+    <!-- user selector -->
+    <div id="user-select">
+      <div class="user-list">
+        <button class="user-btn" onclick="selectUser('admin')">
+          <div class="user-avatar admin">VC</div>
+          <div class="user-info">
+            <div class="user-name">Victor Carvalho</div>
+            <div class="user-role">Administrador · Todas as unidades</div>
+          </div>
+          <div class="user-arrow">›</div>
+        </button>
+        <button class="user-btn" onclick="selectUser('lider_pinheiros')">
+          <div class="user-avatar lider">LP</div>
+          <div class="user-info">
+            <div class="user-name">Líder Pinheiros</div>
+            <div class="user-role">Líder de Unidade · Pinheiros</div>
+          </div>
+          <div class="user-arrow">›</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- pin section -->
+    <div class="pin-section" id="pin-section">
+      <div class="pin-label">Digite seu PIN</div>
+      <div class="pin-who" id="pin-who"></div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot-indicator" id="pd0"></div>
+        <div class="pin-dot-indicator" id="pd1"></div>
+        <div class="pin-dot-indicator" id="pd2"></div>
+        <div class="pin-dot-indicator" id="pd3"></div>
+      </div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="pinKey('1')">1</button>
+        <button class="pin-key" onclick="pinKey('2')">2</button>
+        <button class="pin-key" onclick="pinKey('3')">3</button>
+        <button class="pin-key" onclick="pinKey('4')">4</button>
+        <button class="pin-key" onclick="pinKey('5')">5</button>
+        <button class="pin-key" onclick="pinKey('6')">6</button>
+        <button class="pin-key" onclick="pinKey('7')">7</button>
+        <button class="pin-key" onclick="pinKey('8')">8</button>
+        <button class="pin-key" onclick="pinKey('9')">9</button>
+        <button class="pin-key zero" onclick="pinKey('0')">0</button>
+        <button class="pin-key del" onclick="pinDel()">⌫</button>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <button class="btn-back" onclick="backToUsers()">← Voltar</button>
+    </div>
+
+    <div class="login-footer">TATÁ Sushi · Gente &amp; Gestão · 2026</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+
+<header>
+  <div class="h-brand">
+    <div class="logo">🐢</div>
+    <div>
+      <div class="h-title" id="h-title">Estoque Administrativo</div>
+      <div class="h-sub" id="h-sub">TATÁ Sushi · Gente &amp; Gestão</div>
+    </div>
+  </div>
+  <div class="h-actions">
+    <div class="unit-badge" id="unit-badge">📍 Pinheiros</div>
+    <div class="profile-wrap">
+      <div class="profile-chip" onclick="toggleMenu(event)">
+        <div class="chip-avatar" id="chip-avatar">VC</div>
+        <div>
+          <div class="chip-name" id="chip-name">Victor</div>
+          <div class="chip-role" id="chip-role">Admin</div>
+        </div>
+        <span class="chip-chevron">&#9660;</span>
+      </div>
+      <div class="profile-menu" id="profile-menu">
+        <div class="menu-header">
+          <div class="menu-name" id="menu-name">Victor Carvalho</div>
+          <div class="menu-role" id="menu-role">Administrador</div>
+        </div>
+        <button class="menu-item danger" onclick="logout()">&#128682; Sair da conta</button>
+      </div>
+    </div>
+    <button class="btn-new" onclick="openModal()"><div class="plus-badge">+</div>Lançar</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active">Estoque ADM</div>
+  <div class="tab">Movimentações</div>
+  <div class="tab">Analítico</div>
+  <div class="tab">Inventário</div>
+</div>
+
+<div class="content">
+
+  <!-- admin only: config + unit filter -->
+  <div class="config-strip admin-only" id="config-strip">
+    <div class="g-icon">G</div>
+    <div class="config-label">Script</div>
+    <input class="config-in" id="sheetUrl" placeholder="https://script.google.com/macros/s/…/exec">
+    <button class="config-btn" onclick="saveUrl()">Salvar</button>
+  </div>
+
+
+  <!-- ALERT PANEL — admin only -->
+  <div class="alert-panel admin-only" id="alert-panel">
+    <div class="alert-head">
+      <div class="alert-head-left">
+        <span>⚠️</span>
+        <span class="alert-head-title">Itens zerados no estoque</span>
+        <span class="alert-count" id="alert-count">0</span>
+      </div>
+      <button class="alert-toggle" onclick="toggleAlertBody()" id="alert-toggle">▾ ver</button>
+    </div>
+    <div class="alert-body" id="alert-body" style="display:none"></div>
+  </div>
+
+  <div class="unit-filter admin-only" id="unit-filter">
+    <button class="uf-btn active" onclick="setUnitFilter('all', this)">Todas</button>
+    <button class="uf-btn" onclick="setUnitFilter('Itaim Bibi', this)">Itaim Bibi</button>
+    <button class="uf-btn" onclick="setUnitFilter('Pinheiros', this)">Pinheiros</button>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-accent"></div><div class="kpi-label">Uniformes</div><div class="kpi-hint" id="hint-u">peças · montante</div><div class="kpi-num" id="kpi-u">278</div><div class="kpi-money"><strong id="km-u">R$ 15.702,87</strong><br><span id="ku-u">R$ 56,29 unit.</span></div></div>
+    <div class="kpi"><div class="kpi-accent"></div><div class="kpi-label">Calçados</div><div class="kpi-hint">pares · montante</div><div class="kpi-num" id="kpi-c">47</div><div class="kpi-money"><strong>R$ 4.230,00</strong><br>R$ 90,00 unit.</div></div>
+    <div class="kpi"><div class="kpi-accent"></div><div class="kpi-label">EPI's</div><div class="kpi-hint">itens · montante</div><div class="kpi-num" id="kpi-e">220</div><div class="kpi-money"><strong>R$ 6.567,42</strong><br>R$ 45,46 unit.</div></div>
+    <div class="kpi"><div class="kpi-accent"></div><div class="kpi-label">Brindes</div><div class="kpi-hint">itens · montante</div><div class="kpi-num" id="kpi-b">219</div><div class="kpi-money"><strong>R$ 1.326,82</strong><br>R$ 19,97 unit.</div></div>
+    <div class="kpi"><div class="kpi-accent"></div><div class="kpi-label">Papelaria</div><div class="kpi-hint">itens · montante</div><div class="kpi-num" id="kpi-p">272</div><div class="kpi-money"><strong>R$ 1.171,79</strong><br>R$ 9,15 unit.</div></div>
+  </div>
+
+  <div class="quad-grid">
+    <div class="quad"><div class="quad-head"><span class="quad-icon">👕</span><span class="quad-title">Uniformes</span></div><div class="quad-body" id="b-u"></div></div>
+    <div class="quad"><div class="quad-head"><span class="quad-icon">👟</span><span class="quad-title">Calçados</span></div><div class="quad-body" id="b-c"></div></div>
+    <div class="quad"><div class="quad-head"><span class="quad-icon">🦺</span><span class="quad-title">EPI's</span></div><div class="quad-body" id="b-e"></div></div>
+    <div class="quad"><div class="quad-head"><span class="quad-icon">🎁</span><span class="quad-title">Brindes</span></div><div class="quad-body" id="b-b"></div></div>
+    <div class="quad"><div class="quad-head"><span class="quad-icon">📎</span><span class="quad-title">Papelaria</span></div><div class="quad-body" id="b-p"></div></div>
+  </div>
+
+  <div class="sizes-wrap">
+    <div class="sizes-card">
+      <div class="sizes-title">Tamanhos — Uniformes &amp; EPI's</div>
+      <div class="sizes-sub">Roupas · PP ao EXG</div>
+      <div class="sizes-cols" id="sizes-roupa"></div>
+    </div>
+    <div class="sizes-card">
+      <div class="sizes-title">Numeração — Calçados</div>
+      <div class="sizes-sub">Sapatos e botas · 33 ao 44</div>
+      <div class="sizes-cols" id="sizes-calc"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="f-brand"><div class="f-dot"></div>TATÁ Sushi · Gente &amp; Gestão · 2024–2026</div>
+  <div class="f-date" id="fdate"></div>
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="bgClose(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="m-top">
+      <div class="m-eyebrow">Estoque Administrativo</div>
+      <div class="m-title">Lançar Estoque</div>
+    </div>
+
+    <div class="m-meta">
+      <div class="field"><label>Data</label><input type="date" id="f-data"></div>
+      <div class="field"><label>Unidade</label>
+        <select id="f-unidade">
+          <option value="">Selecionar…</option>
+          <option>Itaim Bibi</option>
+          <option>Pinheiros</option>
+          <option>Administrativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-meta" style="padding-top:8px">
+      <div class="field"><label>Colaborador</label><input type="text" id="f-colab" placeholder="Nome completo"></div>
+      <div class="field"><label>Matrícula</label><input type="text" id="f-matricula" placeholder="Ex: 00123" inputmode="numeric"></div>
+    </div>
+    <div class="m-meta" style="padding-top:8px">
+      <div class="field"><label>Responsável RH</label><input type="text" id="f-resp" placeholder="Nome"></div>
+      <div class="field"><label>Tipo</label>
+        <select id="f-tipo" onchange="onTipoChange()">
+          <option>Entrada</option>
+          <option>Saída — Admissão</option>
+          <option>Saída — Lavanderia</option>
+          <option>Transferência</option>
+          <option>Devolução</option>
+          <option>Ajuste de Inventário</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Transfer destination — shown when Tipo = Transferência -->
+    <div class="transfer-row" id="transfer-row">
+      <div class="transfer-arrow">
+        <strong id="transfer-from">—</strong>
+        <span class="t-arrow">→</span>
+        <div class="field" style="flex:1;margin:0">
+          <select id="f-destino" style="height:38px;font-size:13px">
+            <option value="">Unidade destino…</option>
+            <option>Itaim Bibi</option>
+            <option>Pinheiros</option>
+            <option>Administrativo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="setMode('kit')"><div class="tab-dot"></div>👔 Kit de Cargo</button>
+      <button class="mode-tab" onclick="setMode('livre')"><div class="tab-dot"></div>📦 Lançamento Livre</button>
+    </div>
+
+    <div class="m-panel active" id="panel-kit">
+      <div class="f-section">Cargo / Função</div>
+      <div class="cargo-wrap">
+        <div class="field">
+          <select id="f-cargo" onchange="loadKit()">
+            <option value="">Selecionar cargo…</option>
+            <option value="cozinheiro">Cozinheiro</option>
+            <option value="auxiliar_cozinha">Auxiliar de Cozinha</option>
+            <option value="garcom">Garçom / Garçonete</option>
+            <option value="hostess">Hostess / Recepção</option>
+            <option value="barman">Barman</option>
+            <option value="gerente">Gerente de Operações</option>
+            <option value="peixeiro">Peixeiro</option>
+            <option value="delivery">Entregador / Delivery</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-section">Itens do Kit</div>
+      <div class="kit-list" id="kit-list"><div class="kit-empty"><span>👆</span>Selecione um cargo acima</div></div>
+    </div>
+
+    <div class="m-panel" id="panel-livre">
+      <div class="lote-head">
+        <div class="lote-label">Itens do lote</div>
+        <div class="lote-count" id="lote-count">0 itens</div>
+      </div>
+      <div class="livre-list" id="livre-list"></div>
+      <button class="btn-add-item" onclick="addLivreItem()">+ Adicionar item</button>
+      <div style="height:14px"></div>
+    </div>
+
+    <div class="saldo-error" id="saldo-error">
+      <div class="saldo-error-title">🚫 Saldo insuficiente</div>
+      <div id="saldo-error-items"></div>
+    </div>
+
+    <div class="success-banner" id="success-banner">
+      <div class="sb-title">✅ Lançamento enviado!</div>
+      <div class="sb-sub" id="sb-sub">Itens gravados no Google Sheets.</div>
+      <button class="btn-recibo" onclick="imprimirRecibo()"><div class="btn-dot"></div>Gerar Recibo para Assinatura</button>
+    </div>
+
+    <div class="m-footer">
+      <a class="sheets-ref" href="#" id="sheetLink" target="_blank"><div class="g-icon">G</div>Planilha</a>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="closeModal()">Fechar</button>
+        <button class="btn-save" id="bsave" onclick="doSubmit()">
+          <div class="spin" id="spin"></div>
+          <div class="btn-dot"></div>
+          <span id="blabel">Enviar ao Sheets</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"><span id="ticon">✓</span><span id="tmsg"></span></div>
+<div id="recibo"></div>
+
+<script>
+/* ══════════════════════════════════════
+   USERS & AUTH
+   PINs ficam aqui — troque antes de distribuir
+   Admin:           1234
+   Líder Pinheiros: 5678
+══════════════════════════════════════ */
+const USERS = {
+  admin: {
+    name: 'Victor Carvalho',
+    short: 'Victor',
+    initials: 'VC',
+    role: 'Administrador',
+    roleShort: 'Admin',
+    pin: '1234',
+    type: 'admin',
+    unit: null   // null = todas
+  },
+  lider_pinheiros: {
+    name: 'Líder Pinheiros',
+    short: 'Líder',
+    initials: 'LP',
+    role: 'Líder de Unidade',
+    roleShort: 'Pinheiros',
+    pin: '5678',
+    type: 'lider',
+    unit: 'Pinheiros'
+  }
+};
+
+let selectedUserId = null;
+let pinBuffer      = '';
+let currentUser    = null;
+
+/* ── USER SELECT ── */
+function selectUser(id) {
+  selectedUserId = id;
+  pinBuffer = '';
+  document.getElementById('user-select').style.display = 'none';
+  document.getElementById('pin-section').classList.add('show');
+  const u = USERS[id];
+  document.getElementById('pin-who').innerHTML =
+    `<span style="font-size:18px">${u.type==='admin'?'🔐':'🏪'}</span>${u.name}`;
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function backToUsers() {
+  document.getElementById('pin-section').classList.remove('show');
+  document.getElementById('user-select').style.display = 'block';
+  pinBuffer = '';
+  selectedUserId = null;
+}
+
+function pinKey(k) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += k;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(checkPin, 120);
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`pd${i}`).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  const u = USERS[selectedUserId];
+  if (pinBuffer === u.pin) {
+    loginAs(selectedUserId);
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN incorreto. Tente novamente.';
+    pinBuffer = '';
+    updatePinDots();
+    // shake animation
+    const card = document.querySelector('.login-card');
+    card.style.animation = 'shake 0.4s';
+    setTimeout(() => card.style.animation = '', 400);
+  }
+}
+
+/* ── LOGIN ── */
+function loginAs(id) {
+  currentUser = USERS[id];
+  sessionStorage.setItem('tata_user', id);
+
+  // hide login, show app
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  // apply profile to header
+  const chip = document.getElementById('chip-avatar');
+  chip.textContent  = currentUser.initials;
+  chip.className    = `chip-avatar ${currentUser.type}`;
+  document.getElementById('chip-name').textContent = currentUser.short;
+  if(document.getElementById('menu-name')) document.getElementById('menu-name').textContent = currentUser.name;
+  if(document.getElementById('menu-role')) document.getElementById('menu-role').textContent = currentUser.role;
+  document.getElementById('chip-role').textContent = currentUser.roleShort;
+
+  if (currentUser.type === 'lider') {
+    // unit badge
+    document.getElementById('unit-badge').classList.add('show');
+    document.getElementById('h-sub').textContent = `TATÁ Sushi · ${currentUser.unit}`;
+    // lock unidade field
+    const sel = document.getElementById('f-unidade');
+    for (let opt of sel.options) {
+      if (opt.value !== currentUser.unit) opt.style.display = 'none';
+    }
+    sel.value = currentUser.unit;
+    sel.disabled = true;
+  } else {
+    // show admin-only elements
+    document.querySelectorAll('.admin-only').forEach(el => {
+      el.style.display = el.classList.contains('unit-filter') ? 'flex' : 'flex';
+    });
+    document.getElementById('config-strip').style.display = 'flex';
+    document.getElementById('unit-filter').classList.add('show');
+  }
+
+  init();
+}
+
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById('profile-menu').classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  document.getElementById('profile-menu')?.classList.remove('open');
+});
+
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById('profile-menu').classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('profile-menu')?.classList.remove('open');
+});
+function logout() {
+  document.getElementById('profile-menu')?.classList.remove('open');
+  sessionStorage.removeItem('tata_user');
+  currentUser = null;
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+  document.getElementById('unit-filter').classList.remove('show');
+  document.getElementById('unit-badge').classList.remove('show');
+  document.getElementById('h-sub').textContent = 'TATÁ Sushi · Gente & Gestão';
+  const sel = document.getElementById('f-unidade');
+  for (let opt of sel.options) opt.style.display = '';
+  sel.disabled = false;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+  pinBuffer = ''; selectedUserId = null;
+  document.getElementById('pin-section').classList.remove('show');
+  document.getElementById('user-select').style.display = 'block';
+}
+
+/* ── UNIT FILTER (admin) ── */
+let activeUnitFilter = 'all';
+
+function setUnitFilter(unit, btn) {
+  activeUnitFilter = unit;
+  document.querySelectorAll('.uf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDash();
+}
+
+/* ══════════════════════════════════════
+   DATA — dois datasets: all + por unidade
+══════════════════════════════════════ */
+const DATA = {
+  all: {
+    kpi: { u:[278,'R$ 15.702,87','R$ 56,29'], c:[47,'R$ 4.230,00','R$ 90,00'], e:[220,'R$ 6.567,42','R$ 45,46'], b:[219,'R$ 1.326,82','R$ 19,97'], p:[272,'R$ 1.171,79','R$ 9,15'] },
+    bars: {
+      u:[{n:'Dolmã',q:60},{n:'Bábico',q:57},{n:'Camisa Social (Italika)',q:39},{n:'Calça Oxford',q:29},{n:'Polo',q:16},{n:'Suéter',q:13},{n:'Avental de Cintura',q:11},{n:'Colete Preto',q:9},{n:'Camiseta',q:8}],
+      c:[{n:'Sapato Antiderrapante',q:19},{n:'Sapato Social',q:14},{n:'Bota de Lona',q:8},{n:'Bota de PVC',q:4},{n:'Tênis de Segurança',q:2}],
+      e:[{n:'Luva Látex',q:80},{n:'Óculos de Proteção',q:37},{n:'Luva Ranhurda',q:15},{n:'Luva Térmica',q:13},{n:'Máscara c/ Respirador',q:12},{n:'Avental de PVC (limpeza)',q:8},{n:'Japona Térmica',q:7}],
+      b:[{n:'Tartaruga de Vidro',q:123},{n:'Caneta personalizada',q:104},{n:'Chaveiro personalizado',q:80},{n:'Potinho Coletor',q:50},{n:'Talento Mini',q:19}],
+      p:[{n:'Caneta Bic',q:97},{n:'Pasta L A4',q:40},{n:'Folha de sulfite',q:11},{n:'Pilha AA',q:9},{n:'Bloco de Recibo',q:7}]
+    }
+  },
+  'Itaim Bibi': {
+    kpi: { u:[162,'R$ 9.122,10','R$ 56,31'], c:[27,'R$ 2.430,00','R$ 90,00'], e:[128,'R$ 3.814,56','R$ 29,80'], b:[130,'R$ 789,10','R$ 6,07'], p:[158,'R$ 680,12','R$ 4,30'] },
+    bars: {
+      u:[{n:'Dolmã',q:35},{n:'Bábico',q:33},{n:'Camisa Social (Italika)',q:22},{n:'Calça Oxford',q:17},{n:'Polo',q:9},{n:'Avental de Cintura',q:7}],
+      c:[{n:'Sapato Antiderrapante',q:11},{n:'Sapato Social',q:8},{n:'Bota de Lona',q:5},{n:'Bota de PVC',q:2},{n:'Tênis de Segurança',q:1}],
+      e:[{n:'Luva Látex',q:48},{n:'Óculos de Proteção',q:21},{n:'Luva Ranhurda',q:9},{n:'Máscara c/ Respirador',q:7},{n:'Japona Térmica',q:4}],
+      b:[{n:'Tartaruga de Vidro',q:72},{n:'Caneta personalizada',q:60},{n:'Chaveiro personalizado',q:47},{n:'Potinho Coletor',q:29}],
+      p:[{n:'Caneta Bic',q:56},{n:'Pasta L A4',q:22},{n:'Folha de sulfite',q:6},{n:'Pilha AA',q:5}]
+    }
+  },
+  'Pinheiros': {
+    kpi: { u:[116,'R$ 6.580,77','R$ 56,73'], c:[20,'R$ 1.800,00','R$ 90,00'], e:[92,'R$ 2.752,86','R$ 29,92'], b:[89,'R$ 537,72','R$ 6,04'], p:[114,'R$ 491,67','R$ 4,31'] },
+    bars: {
+      u:[{n:'Dolmã',q:25},{n:'Bábico',q:24},{n:'Camisa Social (Italika)',q:17},{n:'Calça Oxford',q:12},{n:'Polo',q:7},{n:'Avental de Cintura',q:4}],
+      c:[{n:'Sapato Antiderrapante',q:8},{n:'Sapato Social',q:6},{n:'Bota de Lona',q:3},{n:'Bota de PVC',q:2},{n:'Tênis de Segurança',q:1}],
+      e:[{n:'Luva Látex',q:32},{n:'Óculos de Proteção',q:16},{n:'Luva Ranhurda',q:6},{n:'Máscara c/ Respirador',q:5},{n:'Japona Térmica',q:3}],
+      b:[{n:'Tartaruga de Vidro',q:51},{n:'Caneta personalizada',q:44},{n:'Chaveiro personalizado',q:33},{n:'Potinho Coletor',q:21}],
+      p:[{n:'Caneta Bic',q:41},{n:'Pasta L A4',q:18},{n:'Folha de sulfite',q:5},{n:'Pilha AA',q:4}]
+    }
+  }
+};
+
+const SZ_R=[{l:'PP',q:8},{l:'P',q:83},{l:'M',q:178},{l:'G',q:51},{l:'GG',q:24},{l:'EXG',q:2}];
+const SZ_C=[{l:'33',q:2},{l:'34',q:2},{l:'35',q:1},{l:'36',q:3},{l:'37',q:4},{l:'38',q:7},{l:'39',q:9},{l:'40',q:8},{l:'41',q:5},{l:'42',q:4},{l:'43',q:2},{l:'44',q:0}];
+
+function renderDash() {
+  const key = currentUser?.type === 'lider' ? currentUser.unit : (activeUnitFilter === 'all' ? 'all' : activeUnitFilter);
+  const d   = DATA[key] || DATA['all'];
+
+  // KPIs
+  const ids = ['u','c','e','b','p'];
+  ids.forEach(k => {
+    const [qty, total, unit] = d.kpi[k];
+    document.getElementById(`kpi-${k}`).textContent = qty;
+  });
+
+  // Bars
+  bars('b-u', d.bars.u); bars('b-c', d.bars.c); bars('b-e', d.bars.e);
+  bars('b-b', d.bars.b); bars('b-p', d.bars.p);
+}
+
+
+/* ══ SALDO POR UNIDADE (simulado — virá do Sheets quando integrado) ══ */
+const SALDO = {
+  'Pinheiros': {
+    'Dolmã':25,'Bábico':24,'Camisa Social (Italika)':17,'Camisa Social (Itaí)':3,
+    'Calça Oxford':12,'Polo':7,'Suéter':3,'Avental de Cintura':4,'Avental de Peito':2,
+    'Colete Preto':1,'Gravata Slim':2,'Camiseta':8,'Calça Legging':3,'Blazer Preto':1,
+    'Placa de Identificação':5,
+    'Sapato Social':6,'Sapato Antiderrapante':8,'Bota de Lona':3,'Bota de PVC':2,'Tênis de Segurança':1,
+    'Luva Látex':0,'Luva Ranhurda':6,'Luva Térmica':3,'Óculos de Proteção':16,
+    'Máscara c/ Respirador':5,'Avental de PVC (limpeza)':3,'Avental de PVC (peixaria)':2,
+    'Japona Térmica':3,'Capa de Chuva':1,'Cinta Ergonômica':0,
+    'Tartaruga de Vidro':51,'Caneta personalizada':44,'Chaveiro personalizado':33,'Potinho Coletor':21,
+    'Talento Mini':0,'Caixa de bombom':5,'Caneca personalizada':3,'Chocolate Talento':2,
+    'Caneta Bic':41,'Pasta L A4':18,'Folha de sulfite (pct)':5,'Pilha AA':4,
+    'Pilha AAA':0,'Bloco de Recibo':3,'Lápis Bic':2,'Post it':4,'Calculadora':1,
+  },
+  'Itaim Bibi': {
+    'Dolmã':35,'Bábico':33,'Camisa Social (Italika)':22,'Camisa Social (Itaí)':4,
+    'Calça Oxford':17,'Polo':9,'Suéter':5,'Avental de Cintura':7,'Avental de Peito':4,
+    'Colete Preto':2,'Gravata Slim':3,'Camiseta':5,'Calça Legging':1,'Blazer Preto':0,
+    'Placa de Identificação':9,
+    'Sapato Social':8,'Sapato Antiderrapante':11,'Bota de Lona':5,'Bota de PVC':2,'Tênis de Segurança':1,
+    'Luva Látex':48,'Luva Ranhurda':9,'Luva Térmica':5,'Óculos de Proteção':21,
+    'Máscara c/ Respirador':7,'Avental de PVC (limpeza)':5,'Avental de PVC (peixaria)':3,
+    'Japona Térmica':4,'Capa de Chuva':2,'Cinta Ergonômica':1,
+    'Tartaruga de Vidro':72,'Caneta personalizada':60,'Chaveiro personalizado':47,'Potinho Coletor':29,
+    'Talento Mini':8,'Caixa de bombom':5,'Caneca personalizada':4,'Chocolate Talento':3,
+    'Caneta Bic':56,'Pasta L A4':22,'Folha de sulfite (pct)':6,'Pilha AA':5,
+    'Pilha AAA':2,'Bloco de Recibo':4,'Lápis Bic':3,'Post it':5,'Calculadora':2,
+  }
+};
+
+function getZeroItems(unit) {
+  const saldo = SALDO[unit];
+  if (!saldo) return [];
+  return Object.entries(saldo).filter(([,q]) => q === 0).map(([n]) => n);
+}
+
+function renderAlerts() {
+  const panel  = document.getElementById('alert-panel');
+  const body   = document.getElementById('alert-body');
+  const count  = document.getElementById('alert-count');
+  if (!panel) return;
+
+  const units  = ['Itaim Bibi','Pinheiros'];
+  let total    = 0;
+  let html     = '';
+
+  units.forEach(u => {
+    const zeros = getZeroItems(u);
+    if (!zeros.length) return;
+    total += zeros.length;
+    html += `<div class="alert-unit">
+      <div class="alert-unit-name">📍 ${u} <span style="color:var(--danger);font-weight:700">${zeros.length} item${zeros.length>1?'s':''} zerado${zeros.length>1?'s':''}</span></div>
+      <div class="alert-items">${zeros.map(n=>`
+        <div class="alert-item">
+          <div class="alert-item-dot"></div>
+          <span class="alert-item-name">${n}</span>
+          <span class="alert-item-qty">· 0 un.</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+
+  if (total > 0) {
+    panel.classList.add('show');
+    count.textContent = total;
+    body.innerHTML = html;
+  } else {
+    panel.classList.remove('show');
+  }
+}
+
+function toggleAlertBody() {
+  const body = document.getElementById('alert-body');
+  const btn  = document.getElementById('alert-toggle');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  btn.textContent    = open ? '▾ ver' : '▴ ocultar';
+}
+
+function onTipoChange() {
+  const tipo    = document.getElementById('f-tipo').value;
+  const row     = document.getElementById('transfer-row');
+  const from    = document.getElementById('transfer-from');
+  const unidade = document.getElementById('f-unidade').value;
+  if (tipo === 'Transferência') {
+    row.classList.add('show');
+    from.textContent = unidade || '—';
+    // populate destino removing current unit
+    const dest = document.getElementById('f-destino');
+    Array.from(dest.options).forEach(opt => {
+      opt.style.display = (!opt.value || opt.value !== unidade) ? '' : 'none';
+    });
+  } else {
+    row.classList.remove('show');
+  }
+}
+
+function checkSaldo(rows) {
+  // only for lider
+  if (currentUser?.type !== 'lider') return [];
+  const unit  = currentUser.unit;
+  const saldo = SALDO[unit];
+  if (!saldo) return [];
+
+  const erros = [];
+  // aggregate requested per item
+  const req = {};
+  rows.forEach(r => {
+    if (!req[r.item]) req[r.item] = 0;
+    const isSaida = r.tipo.startsWith('Saída') || r.tipo === 'Transferência';
+    if (isSaida) req[r.item] += r.quantidade;
+  });
+
+  Object.entries(req).forEach(([item, qtd]) => {
+    const disponivel = saldo[item] ?? 999;
+    if (qtd > disponivel) {
+      erros.push({ item, disponivel, solicitado: qtd });
+    }
+  });
+  return erros;
+}
+
+function showSaldoError(erros) {
+  const box   = document.getElementById('saldo-error');
+  const items = document.getElementById('saldo-error-items');
+  if (!erros.length) { box.classList.remove('show'); return; }
+  box.classList.add('show');
+  items.innerHTML = erros.map(e =>
+    `<div class="saldo-error-item">${e.item}: disponível <strong>${e.disponivel}</strong>, solicitado <strong>${e.solicitado}</strong></div>`
+  ).join('');
+}
+/* ══ CATALOG ══ */
+const CATALOG = {
+  'Uniformes': [{n:'Dolmã',tam:'roupa'},{n:'Bábico',tam:'none'},{n:'Camisa Social (Italika)',tam:'roupa'},{n:'Camisa Social (Itaí)',tam:'roupa'},{n:'Calça Oxford',tam:'roupa'},{n:'Polo',tam:'roupa'},{n:'Suéter',tam:'roupa'},{n:'Avental de Cintura',tam:'roupa'},{n:'Avental de Peito',tam:'roupa'},{n:'Colete Preto',tam:'roupa'},{n:'Gravata Slim',tam:'none'},{n:'Camiseta',tam:'roupa'},{n:'Calça Legging',tam:'roupa'},{n:'Blazer Preto',tam:'roupa'},{n:'Placa de Identificação',tam:'none'}],
+  'Calçados':  [{n:'Sapato Social',tam:'calcado'},{n:'Sapato Antiderrapante',tam:'calcado'},{n:'Bota de Lona',tam:'calcado'},{n:'Bota de PVC',tam:'calcado'},{n:'Tênis de Segurança',tam:'calcado'}],
+  "EPI's":     [{n:'Luva Látex',tam:'none',epi:true},{n:'Luva Ranhurda',tam:'none',epi:true},{n:'Luva Térmica',tam:'none',epi:true},{n:'Óculos de Proteção',tam:'none',epi:true},{n:'Máscara c/ Respirador',tam:'none',epi:true},{n:'Avental de PVC (limpeza)',tam:'roupa',epi:true},{n:'Avental de PVC (peixaria)',tam:'roupa',epi:true},{n:'Japona Térmica',tam:'roupa',epi:true},{n:'Capa de Chuva',tam:'roupa',epi:true},{n:'Cinta Ergonômica',tam:'none',epi:true}],
+  'Brindes':   [{n:'Tartaruga de Vidro',tam:'none'},{n:'Caneta personalizada',tam:'none'},{n:'Chaveiro personalizado',tam:'none'},{n:'Potinho Coletor',tam:'none'},{n:'Talento Mini',tam:'none'},{n:'Caixa de bombom',tam:'none'},{n:'Caneca personalizada',tam:'none'},{n:'Chocolate Talento',tam:'none'}],
+  'Papelaria': [{n:'Caneta Bic',tam:'none'},{n:'Pasta L A4',tam:'none'},{n:'Folha de sulfite (pct)',tam:'none'},{n:'Lâminas para estilete',tam:'none'},{n:'Pilha AA',tam:'none'},{n:'Pilha AAA',tam:'none'},{n:'Bloco de Recibo',tam:'none'},{n:'Lápis Bic',tam:'none'},{n:'Post it',tam:'none'},{n:'Calculadora',tam:'none'}]
+};
+
+const SZ_ROUPA   = ['PP','P','M','G','GG','EXG'];
+const SZ_CALCADO = ['33','34','35','36','37','38','39','40','41','42','43','44'];
+function tamOpts(t){return t==='roupa'?SZ_ROUPA.map(s=>`<option>${s}</option>`).join(''):t==='calcado'?SZ_CALCADO.map(s=>`<option>${s}</option>`).join(''):''}
+function tamSel(t,c='tam-sel'){return t==='none'?`<span class="tam-badge">—</span>`:`<select class="${c}"><option value="">Tam</option>${tamOpts(t)}</select>`}
+
+const KITS = {
+  cozinheiro:      [{cat:"Uniformes",n:'Dolmã',tam:'roupa',q:3},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2},{cat:"Uniformes",n:'Avental de Peito',tam:'roupa',q:2},{cat:"Uniformes",n:'Bábico',tam:'none',q:5},{cat:"Calçados",n:'Sapato Antiderrapante',tam:'calcado',q:1},{cat:"EPI's",n:'Luva Látex',tam:'none',q:2,epi:true},{cat:"EPI's",n:'Óculos de Proteção',tam:'none',q:1,epi:true},{cat:"EPI's",n:'Máscara c/ Respirador',tam:'none',q:2,epi:true}],
+  auxiliar_cozinha:[{cat:"Uniformes",n:'Dolmã',tam:'roupa',q:2},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2},{cat:"Uniformes",n:'Avental de Cintura',tam:'roupa',q:2},{cat:"Uniformes",n:'Bábico',tam:'none',q:5},{cat:"Calçados",n:'Sapato Antiderrapante',tam:'calcado',q:1},{cat:"EPI's",n:'Luva Látex',tam:'none',q:2,epi:true}],
+  garcom:          [{cat:"Uniformes",n:'Camisa Social (Italika)',tam:'roupa',q:3},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2},{cat:"Uniformes",n:'Gravata Slim',tam:'none',q:1},{cat:"Uniformes",n:'Placa de Identificação',tam:'none',q:1},{cat:"Calçados",n:'Sapato Social',tam:'calcado',q:1}],
+  hostess:         [{cat:"Uniformes",n:'Camisa Social (Italika)',tam:'roupa',q:2},{cat:"Uniformes",n:'Calça Legging',tam:'roupa',q:2},{cat:"Uniformes",n:'Placa de Identificação',tam:'none',q:1},{cat:"Calçados",n:'Sapato Social',tam:'calcado',q:1}],
+  barman:          [{cat:"Uniformes",n:'Camisa Social (Italika)',tam:'roupa',q:3},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2},{cat:"Uniformes",n:'Avental de Cintura',tam:'roupa',q:2},{cat:"Uniformes",n:'Placa de Identificação',tam:'none',q:1},{cat:"Calçados",n:'Sapato Social',tam:'calcado',q:1}],
+  gerente:         [{cat:"Uniformes",n:'Camisa Social (Itaí)',tam:'roupa',q:3},{cat:"Uniformes",n:'Blazer Preto',tam:'roupa',q:1},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2},{cat:"Uniformes",n:'Placa de Identificação',tam:'none',q:1},{cat:"Calçados",n:'Sapato Social',tam:'calcado',q:1}],
+  peixeiro:        [{cat:"Uniformes",n:'Dolmã',tam:'roupa',q:2},{cat:"EPI's",n:'Avental de PVC (peixaria)',tam:'roupa',q:2,epi:true},{cat:"EPI's",n:'Luva Ranhurda',tam:'none',q:2,epi:true},{cat:"EPI's",n:'Luva Látex',tam:'none',q:4,epi:true},{cat:"Calçados",n:'Bota de Lona',tam:'calcado',q:1}],
+  delivery:        [{cat:"Uniformes",n:'Camiseta',tam:'roupa',q:3},{cat:"Uniformes",n:'Calça Oxford',tam:'roupa',q:2}],
+};
+
+/* ══ MODE ══ */
+let currentMode='kit', livreId=0, lastRows=[], lastMeta={};
+
+function setMode(m){
+  currentMode=m;
+  document.querySelectorAll('.mode-tab').forEach((t,i)=>t.classList.toggle('active',['kit','livre'][i]===m));
+  document.getElementById('panel-kit').classList.toggle('active',m==='kit');
+  document.getElementById('panel-livre').classList.toggle('active',m==='livre');
+}
+
+/* ══ KIT ══ */
+function loadKit(){
+  const cargo=document.getElementById('f-cargo').value;
+  const list=document.getElementById('kit-list');
+  if(!cargo||!KITS[cargo]){list.innerHTML='<div class="kit-empty"><span>👆</span>Selecione um cargo acima</div>';return}
+  list.innerHTML=KITS[cargo].map((it,i)=>`
+    <div class="kit-item" id="ki-${i}">
+      <div class="kit-item-top">
+        <div class="kit-item-info">
+          <div class="kit-item-name">${it.n}</div>
+          <div class="kit-item-sub">${it.cat}${it.epi?'<span class="epi-badge">EPI</span>':''}</div>
+        </div>
+        <div class="kit-item-right">
+          ${tamSel(it.tam)}
+          <div class="qty-control">
+            <button class="qty-btn" onclick="adjQty(${i},-1)">−</button>
+            <input class="qty-val" type="number" id="kit-qty-${i}" value="${it.q}" min="0">
+            <button class="qty-btn" onclick="adjQty(${i},1)">+</button>
+          </div>
+        </div>
+      </div>
+      ${it.epi?`<div class="ca-row"><span class="ca-label">Nº CA *</span><input class="ca-input" id="kit-ca-${i}" type="text" placeholder="Ex: 12345" inputmode="numeric"></div>`:''}
+    </div>`).join('');
+}
+
+function adjQty(i,d){const el=document.getElementById(`kit-qty-${i}`);el.value=Math.max(0,(parseInt(el.value)||0)+d)}
+
+/* ══ LIVRE ══ */
+function addLivreItem(){
+  livreId++;const id=livreId;
+  const el=document.createElement('div');el.className='livre-item';el.id=`livre-${id}`;
+  const cats=Object.keys(CATALOG);const defItems=CATALOG[cats[0]];
+  el.innerHTML=`
+    <button class="remove-btn" onclick="removeLivre(${id})">✕</button>
+    <div class="livre-row c2">
+      <select onchange="onCatChange(${id},this)">${cats.map(c=>`<option>${c}</option>`).join('')}</select>
+      <select id="li-item-${id}" onchange="onItemChange(${id})">${defItems.map(i=>`<option data-tam="${i.tam}" data-epi="${i.epi||false}">${i.n}</option>`).join('')}</select>
+    </div>
+    <div class="livre-row c3">
+      <div id="li-tam-wrap-${id}">${tamSel(defItems[0].tam,'tam-sel')}</div>
+      <input type="number" id="li-qtd-${id}" placeholder="Qtd" value="1" min="1" inputmode="numeric">
+      <input type="number" placeholder="R$ unit." step="0.01" min="0" inputmode="decimal" id="li-custo-${id}">
+    </div>
+    <div class="livre-ca-row ${defItems[0].epi?'visible':''}" id="li-ca-row-${id}">
+      <span class="ca-label">Nº CA *</span>
+      <input class="livre-ca-input" id="li-ca-${id}" type="text" placeholder="Ex: 12345" inputmode="numeric">
+    </div>`;
+  document.getElementById('livre-list').appendChild(el);updateLoteCount();
+}
+
+function onCatChange(id,sel){
+  const cat=sel.value;const items=CATALOG[cat]||[];
+  const s=document.getElementById(`li-item-${id}`);
+  s.innerHTML=items.map(i=>`<option data-tam="${i.tam}" data-epi="${i.epi||false}">${i.n}</option>`).join('');
+  const f=items[0]||{};updateTamWrap(id,f.tam||'none');updateCArow(id,!!f.epi);
+}
+function onItemChange(id){const sel=document.getElementById(`li-item-${id}`);const opt=sel.options[sel.selectedIndex];updateTamWrap(id,opt?.dataset.tam||'none');updateCArow(id,opt?.dataset.epi==='true')}
+function updateTamWrap(id,tam){document.getElementById(`li-tam-wrap-${id}`).innerHTML=tamSel(tam,'tam-sel')}
+function updateCArow(id,isEpi){const r=document.getElementById(`li-ca-row-${id}`);if(r)r.classList.toggle('visible',isEpi)}
+function removeLivre(id){document.getElementById(`livre-${id}`)?.remove();updateLoteCount()}
+function updateLoteCount(){const n=document.getElementById('livre-list').children.length;document.getElementById('lote-count').textContent=`${n} ${n===1?'item':'itens'}`}
+
+/* ══ SUBMIT ══ */
+async function doSubmit(){
+  const url=localStorage.getItem('tata_url')||document.getElementById('sheetUrl')?.value.trim()||'';
+  if(!url){showToast('Configure a URL do Apps Script.',true);return}
+  const meta={data:document.getElementById('f-data').value,unidade:document.getElementById('f-unidade').value,colaborador:document.getElementById('f-colab').value,matricula:document.getElementById('f-matricula').value,responsavel:document.getElementById('f-resp').value,tipo:document.getElementById('f-tipo').value};
+  let rows=[],caError=false;
+  if(currentMode==='kit'){
+    const cargo=document.getElementById('f-cargo').value;
+    if(!cargo){showToast('Selecione um cargo.',true);return}
+    const kd=KITS[cargo]||[];
+    document.querySelectorAll('.kit-item').forEach((el,i)=>{
+      const qtd=parseInt(document.getElementById(`kit-qty-${i}`)?.value)||0;if(!qtd)return;
+      const name=el.querySelector('.kit-item-name').textContent;
+      const cat=kd[i]?.cat||'';const tam=el.querySelector('.tam-sel')?.value||'—';
+      const isEpi=!!kd[i]?.epi;let ca='';
+      if(isEpi){const caEl=document.getElementById(`kit-ca-${i}`);ca=caEl?.value.trim()||'';if(!ca){caEl?.classList.add('error');caError=true}else caEl?.classList.remove('error')}
+      rows.push({...meta,categoria:cat,item:name,quantidade:qtd,tamanho:tam,custo_unit:0,cargo,ca,obs:`Kit — ${cargo}`});
+    });
+    if(caError){showToast("Preencha o Nº CA de todos os EPI's.",true);return}
+    if(!rows.length){showToast('Todas as quantidades estão zero.',true);return}
+  } else {
+    document.querySelectorAll('.livre-item').forEach(el=>{
+      const id=el.id.replace('livre-','');const sels=el.querySelectorAll('select');
+      const cat=sels[0].value;const item=sels[1].value;const tam=el.querySelector('.tam-sel')?.value||'—';
+      const qtd=parseInt(document.getElementById(`li-qtd-${id}`)?.value)||0;
+      const custo=parseFloat(document.getElementById(`li-custo-${id}`)?.value)||0;
+      const isEpi=cat==="EPI's";let ca='';
+      if(isEpi){const caEl=document.getElementById(`li-ca-${id}`);ca=caEl?.value.trim()||'';if(!ca){caEl?.classList.add('error');caError=true}else caEl?.classList.remove('error')}
+      if(!qtd)return;
+      rows.push({...meta,categoria:cat,item,quantidade:qtd,tamanho:tam,custo_unit:custo,cargo:'',ca,obs:''});
+    });
+    if(caError){showToast("Preencha o Nº CA de todos os EPI's.",true);return}
+    if(!rows.length){showToast('Adicione ao menos um item com quantidade.',true);return}
+  }
+  lastRows=rows;lastMeta=meta;
+
+  // saldo check for lider
+  const saldoErros = checkSaldo(rows);
+  if (saldoErros.length) { showSaldoError(saldoErros); return; }
+  showSaldoError([]);
+
+  // if transferência, duplicate rows as entrada on destino
+  const tipo = document.getElementById('f-tipo').value;
+  if (tipo === 'Transferência') {
+    const destino = document.getElementById('f-destino')?.value;
+    if (!destino) { showToast('Selecione a unidade destino.', true); return; }
+    const entradas = rows.map(r => ({...r, unidade: destino, tipo: 'Entrada — Transferência', obs: `Transferência de ${meta.unidade}`}));
+    rows = rows.map(r => ({...r, tipo: 'Saída — Transferência', obs: `Transferência para ${destino}`}));
+    rows = [...rows, ...entradas];
+    lastRows = rows;
+  }
+
+  setLoad(true);
+  try{
+    await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({lote:rows,timestamp:new Date().toISOString()})});
+    document.getElementById('success-banner').classList.add('show');
+    document.getElementById('sb-sub').textContent=`${rows.length} ${rows.length===1?'item gravado':'itens gravados'} no Google Sheets.`;
+    document.getElementById('bsave').style.display='none';
+  }catch(e){showToast('Erro de conexão.',true)}
+  finally{setLoad(false)}
+}
+
+function setLoad(on){document.getElementById('bsave').disabled=on;document.getElementById('spin').style.display=on?'block':'none';document.getElementById('blabel').textContent=on?'Enviando…':'Enviar ao Sheets'}
+
+/* ══ RECIBO ══ */
+function imprimirRecibo(){
+  const m=lastMeta,rows=lastRows;
+  const cargo=document.getElementById('f-cargo')?.value||'';
+  const cargoLabel={cozinheiro:'Cozinheiro',auxiliar_cozinha:'Auxiliar de Cozinha',garcom:'Garçom / Garçonete',hostess:'Hostess / Recepção',barman:'Barman',gerente:'Gerente de Operações',peixeiro:'Peixeiro',delivery:'Entregador / Delivery'}[cargo]||'—';
+  const total=rows.reduce((s,r)=>s+r.quantidade,0);
+  const dataFmt=m.data?new Date(m.data+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+  const now=new Date().toLocaleString('pt-BR');
+  const tableRows=rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.categoria}</td><td>${r.item}</td><td>${r.tamanho||'—'}</td><td style="text-align:center">${r.quantidade}</td><td style="text-align:center">${r.ca?`CA ${r.ca}`:'—'}</td></tr>`).join('');
+  document.getElementById('recibo').innerHTML=`
+    <div class="rp-header">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="rp-logo">🐢</div>
+        <div><div class="rp-brand">TATÁ Sushi</div><div class="rp-brand-sub">Gente &amp; Gestão · RH</div></div>
+      </div>
+      <div class="rp-doc"><strong>Recibo de Entrega de Uniformes e EPI's</strong>Unidade: ${m.unidade||'—'}<br>Data: ${dataFmt}<br>Emitido: ${now}</div>
+    </div>
+    <div class="rp-title">Comprovante de Recebimento de Itens</div>
+    <div class="rp-grid">
+      <div class="rp-box"><div class="rp-box-label">Colaborador</div><div class="rp-box-val">${m.colaborador||'—'}</div></div>
+      <div class="rp-box"><div class="rp-box-label">Matrícula</div><div class="rp-box-val">${m.matricula||'—'}</div></div>
+      <div class="rp-box"><div class="rp-box-label">Cargo</div><div class="rp-box-val">${cargoLabel}</div></div>
+    </div>
+    <table class="rp-table">
+      <thead><tr><th>#</th><th>Categoria</th><th>Item</th><th>Tamanho</th><th>Qtd</th><th>Nº CA</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    <div class="rp-total"><div class="rp-total-box">Total de itens recebidos: <strong>${total} peças</strong></div></div>
+    <div class="rp-termo">Declaro que recebi os itens listados acima em perfeito estado de conservação, e que estou ciente das responsabilidades quanto ao uso, guarda e devolução, conforme política interna da TATÁ Sushi. Os EPI's foram entregues com os respectivos Certificados de Aprovação (CA), conforme exigência da <strong>NR-6</strong>.</div>
+    <div class="rp-assinaturas">
+      <div class="rp-ass"><div class="rp-ass-label">Assinatura do Colaborador</div><div class="rp-ass-name">${m.colaborador||'___________________________'}</div><div class="rp-ass-sub">Mat. ${m.matricula||'—'}</div></div>
+      <div class="rp-ass"><div class="rp-ass-label">Responsável Gente &amp; Gestão</div><div class="rp-ass-name">${m.responsavel||'___________________________'}</div><div class="rp-ass-sub">TATÁ Sushi · ${m.unidade||'—'}</div></div>
+    </div>
+    <div class="rp-footer">TATÁ Sushi · Gente &amp; Gestão · ${m.unidade||''} · ${dataFmt}</div>`;
+  window.print();
+}
+
+/* ══ MODAL ══ */
+function openModal(){
+  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+  if(currentUser?.type==='lider'){
+    document.getElementById('f-unidade').value=currentUser.unit;
+    document.getElementById('f-resp').value=currentUser.name;
+  }
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('f-cargo').value='';
+  document.getElementById('kit-list').innerHTML='<div class="kit-empty"><span>👆</span>Selecione um cargo acima</div>';
+  document.getElementById('livre-list').innerHTML='';
+  document.getElementById('success-banner').classList.remove('show');
+  document.getElementById('bsave').style.display='';
+  document.getElementById('transfer-row')?.classList.remove('show');
+  document.getElementById('saldo-error')?.classList.remove('show');
+  document.getElementById('f-tipo').value='Entrada'; onTipoChange();
+  livreId=0;updateLoteCount();setMode('kit');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow=''}
+function bgClose(e){if(e.target===document.getElementById('overlay'))closeModal()}
+
+/* ══ CONFIG ══ */
+function saveUrl(){const u=document.getElementById('sheetUrl').value.trim();localStorage.setItem('tata_url',u);if(u)document.getElementById('sheetLink').href=u;showToast('URL salva!',false)}
+
+/* ══ TOAST ══ */
+function showToast(msg,err){const t=document.getElementById('toast');document.getElementById('tmsg').textContent=msg;document.getElementById('ticon').textContent=err?'⚠':'✓';t.className='toast'+(err?' err':'')+' show';setTimeout(()=>t.className='toast'+(err?' err':''),3500)}
+
+/* ══ RENDER ══ */
+function bars(id,items){
+  const el=document.getElementById(id);if(!el||!items?.length)return;
+  const max=Math.max(...items.map(i=>i.q));
+  el.innerHTML=items.map((it,i)=>`<div class="bar-row"><div class="bar-name ${i===0?'r1':''}">${it.n}</div><div class="bar-track"><div class="bar-fill ${i===0?'r1':i<2?'r2':i<4?'r3':''}" style="width:0" data-w="${(it.q/max*100).toFixed(1)}%"></div></div><div class="bar-qty ${i===0?'r1':''}">${it.q}</div></div>`).join('');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.w)));
+}
+
+function buildSizes(id,data){
+  const el=document.getElementById(id);if(!el)return;
+  const max=Math.max(...data.map(s=>s.q),1);
+  el.innerHTML=data.map(s=>`<div class="size-col"><div class="size-num ${s.q===max?'peak':''}">${s.q}</div><div class="size-bar-wrap"><div class="size-bar ${s.q===max?'peak':s.q>=max*.5?'high':''}" style="height:0" data-h="${(s.q/max*52).toFixed(1)}px"></div></div><div class="size-lbl">${s.l}</div></div>`).join('');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.size-bar').forEach(b=>b.style.height=b.dataset.h)));
+}
+
+/* ══ INIT ══ */
+function init(){
+  renderDash();
+  renderAlerts();
+  buildSizes('sizes-roupa',SZ_R);buildSizes('sizes-calc',SZ_C);
+  document.getElementById('fdate').textContent=new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+  const saved=localStorage.getItem('tata_url')||'';
+  const su=document.getElementById('sheetUrl');if(su)su.value=saved;
+  if(saved&&document.getElementById('sheetLink'))document.getElementById('sheetLink').href=saved;
+  document.addEventListener('keydown',e=>e.key==='Escape'&&closeModal());
+}
+
+/* shake keyframe */
+const style=document.createElement('style');
+style.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}';
+document.head.appendChild(style);
+
+/* auto-login if session exists */
+const saved=sessionStorage.getItem('tata_user');
+if(saved&&USERS[saved]){loginAs(saved)}
+</script>
+</body>
+</html>
