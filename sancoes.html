@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanções Disciplinares — Governança de Processos · TATÁ Sushi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --citric: #CFFF00;
+  --black: #0a0a0a;
+  --white: #ffffff;
+  --gray-light: #f5f5f5;
+  --gray-mid: #e0e0e0;
+  --gray-text: #6b6b6b;
+  --green: #3a7a3a;
+  --green-light: rgba(58,122,58,0.08);
+  --green-border: rgba(58,122,58,0.22);
+  --red: #c0392b;
+  --red-light: rgba(192,57,43,0.07);
+  --red-border: rgba(192,57,43,0.22);
+  --amber: #b7860b;
+  --amber-light: rgba(183,134,11,0.08);
+  --amber-border: rgba(183,134,11,0.25);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--gray-mid);
+  padding: 0 32px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { font-weight: 900; font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--black); }
+.nav-logo span { color: var(--green); }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { text-decoration: none; font-size: 13px; font-weight: 500; color: var(--gray-text); transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--black); }
+
+/* ── LAYOUT ── */
+main { padding-top: 56px; padding-bottom: 96px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+/* ── HEADER ── */
+.page-header { padding: 40px 0 32px; border-bottom: 1px solid var(--gray-mid); margin-bottom: 40px; }
+.breadcrumb {
+  font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.breadcrumb span { color: var(--gray-text); font-weight: 400; }
+.dept-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: 100px; padding: 4px 12px;
+  font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: .05em; margin-bottom: 16px;
+}
+.page-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 4vw, 44px); font-weight: 400; line-height: 1.1; margin-bottom: 12px;
+}
+.page-title .accent { color: var(--green); }
+.page-desc { font-size: 14px; line-height: 1.7; color: var(--gray-text); max-width: 760px; }
+
+/* ── SECTIONS ── */
+.section { margin-bottom: 52px; animation: fadeUp .45s ease both; }
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}
+.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
+.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}
+.section:nth-child(7){animation-delay:.35s}.section:nth-child(8){animation-delay:.4s}
+
+.section-header {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--black);
+}
+.section-title { font-size: 17px; font-weight: 700; }
+.section-tag { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--gray-text); }
+
+/* ── PRINCIPLES ── */
+.principles-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.principle-card {
+  background: var(--gray-light); border-radius: 10px; padding: 20px 18px;
+  border-top: 3px solid var(--green);
+}
+.principle-num {
+  font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 8px;
+}
+.principle-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.principle-desc { font-size: 12.5px; line-height: 1.6; color: var(--gray-text); }
+
+/* ── INFO / ALERT BOXES ── */
+.info-box {
+  background: var(--green-light); border: 1px solid var(--green-border);
+  border-left: 4px solid var(--green); border-radius: 0 8px 8px 0;
+  padding: 12px 16px; font-size: 12.5px; color: #1e4d1e; line-height: 1.6;
+}
+.info-box strong { color: var(--green); }
+
+.alert-box {
+  background: var(--red-light); border: 1px solid var(--red-border);
+  border-left: 4px solid var(--red); border-radius: 0 8px 8px 0;
+  padding: 12px 16px; font-size: 12.5px; color: #7a1f1f; line-height: 1.6;
+}
+.alert-box strong { color: var(--red); }
+
+.amber-box {
+  background: var(--amber-light); border: 1px solid var(--amber-border);
+  border-left: 4px solid var(--amber); border-radius: 0 8px 8px 0;
+  padding: 12px 16px; font-size: 12.5px; color: #5a4000; line-height: 1.6;
+}
+.amber-box strong { color: var(--amber); }
+
+.quote-block {
+  border-left: 4px solid var(--black); padding-left: 20px;
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(15px, 2vw, 20px); line-height: 1.4;
+  color: var(--black); margin: 16px 0;
+}
+
+/* ── LEVEL SCALE ── */
+.levels-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.level-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--gray-mid);
+}
+.level-header {
+  padding: 10px 14px;
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em;
+}
+.level-body { padding: 12px 14px; background: var(--white); }
+.level-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.level-desc { font-size: 11.5px; line-height: 1.55; color: var(--gray-text); }
+
+.level-1 .level-header { background: #eaf4ea; color: var(--green); }
+.level-2 .level-header { background: #fff8e1; color: #b7860b; }
+.level-3 .level-header { background: #fff0e0; color: #c0622b; }
+.level-4 .level-header { background: var(--red-light); color: var(--red); }
+
+/* ── TWO COL DETAIL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.detail-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.detail-list li {
+  font-size: 13px; line-height: 1.55; color: #333;
+  padding-left: 16px; position: relative;
+}
+.detail-list li::before { content: '▸'; position: absolute; left: 0; color: var(--green); }
+.detail-list li strong { color: var(--black); }
+
+/* ── JUSTA CAUSA TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--gray-mid); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table thead th {
+  background: var(--black); color: var(--white);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em;
+  padding: 12px 16px; text-align: left;
+}
+.data-table thead th:first-child { border-radius: 10px 0 0 0; }
+.data-table thead th:last-child { border-radius: 0 10px 0 0; }
+.data-table tbody td {
+  padding: 11px 16px; border-bottom: 1px solid var(--gray-mid);
+  vertical-align: top; line-height: 1.5; font-size: 12.5px; color: var(--black);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: var(--gray-light); }
+.data-table td:first-child { font-weight: 700; max-width: 200px; }
+.data-table td:last-child { color: var(--gray-text); }
+
+/* ── FLOW ── */
+.flow-strip {
+  display: flex; align-items: center; gap: 0;
+  overflow-x: auto; padding: 24px; background: var(--gray-light); border-radius: 10px;
+}
+.flow-step {
+  background: var(--white); border: 1.5px solid var(--gray-mid); border-radius: 8px;
+  padding: 12px 16px; min-width: 100px; text-align: center; flex-shrink: 0;
+}
+.flow-step-num {
+  font-size: 9px; font-weight: 800; color: var(--green);
+  letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px;
+}
+.flow-step-label { font-size: 12px; font-weight: 700; }
+.flow-arrow { color: var(--gray-text); font-size: 18px; padding: 0 6px; flex-shrink: 0; }
+
+.flow-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+
+/* ── ERROR CARDS ── */
+.error-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.error-card {
+  background: var(--red-light); border: 1px solid var(--red-border);
+  border-radius: 10px; padding: 14px 16px;
+}
+.error-tag { font-size: 9px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 5px; }
+.error-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; }
+.error-desc { font-size: 12px; line-height: 1.5; color: #555; }
+
+/* ── CLOSING CARDS ── */
+.closing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.closing-card {
+  background: var(--gray-light); border: 1px solid var(--gray-mid);
+  border-radius: 10px; padding: 16px;
+}
+.closing-tag { font-size: 9px; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
+.closing-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.closing-desc { font-size: 12px; line-height: 1.5; color: var(--gray-text); }
+
+/* ── LEGAL BASE ── */
+.legal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ── BACK ── */
+.btn-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; border: 1.5px solid var(--black); border-radius: 100px;
+  background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  font-weight: 500; color: var(--black); cursor: pointer; transition: all .2s; text-decoration: none;
+}
+.btn-back:hover { background: var(--black); color: var(--citric); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .two-col, .legal-grid, .flow-detail-row { grid-template-columns: 1fr; }
+  .levels-grid { grid-template-columns: repeat(2,1fr); }
+  .principles-row { grid-template-columns: 1fr; }
+  .closing-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .container { padding: 0 16px; }
+  .nav-links { display: none; }
+  .levels-grid, .error-grid { grid-template-columns: 1fr; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">TATÁ <span>Sushi</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Início</a></li>
+    <li><a href="#">Índice</a></li>
+    <li><a href="#" class="active">Áreas & Cargos</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="page-header section">
+    <p class="breadcrumb">
+      Governança de Processo <span>›</span> Índice <span>›</span> Áreas &amp; Cargos
+      <span>›</span> DAT&amp;F: Recursos Humanos <span>›</span>
+      <strong style="color:var(--black)">Sanções Disciplinares</strong>
+    </p>
+    <div class="dept-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      RH · People &amp; Cultura · Líderes
+    </div>
+    <h1 class="page-title">Sanções <span class="accent">Disciplinares</span></h1>
+    <p class="page-desc">Como aplicar medidas disciplinares de forma justa, legal e eficaz. Guia prático para líderes de equipe — com foco na correção de comportamentos, preservação do ambiente de trabalho, segurança jurídica e conformidade com as normas internas e a legislação trabalhista.</p>
+  </header>
+
+  <!-- 1. CONCEITO -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">O que são Sanções Disciplinares?</h2>
+      <span class="section-tag">Conceito</span>
+    </div>
+    <p style="font-size:14px; line-height:1.7; color:#333; max-width:800px; margin-bottom:20px;">
+      Sanções disciplinares são instrumentos de gestão utilizados para <strong>corrigir comportamentos inadequados</strong>, preservar o ambiente de trabalho e reforçar o cumprimento das normas internas — com foco na melhoria da conduta, e não na humilhação ou punição arbitrária.
+    </p>
+    <div class="principles-row">
+      <div class="principle-card">
+        <p class="principle-num">Princípio 01</p>
+        <p class="principle-title">Gradualidade</p>
+        <p class="principle-desc">Em regra, a resposta disciplinar deve evoluir da medida mais leve para a mais grave, considerando reincidência, contexto e histórico.</p>
+      </div>
+      <div class="principle-card">
+        <p class="principle-num">Princípio 02</p>
+        <p class="principle-title">Proporcionalidade</p>
+        <p class="principle-desc">A medida deve ser compatível com a gravidade da conduta, os impactos gerados e as circunstâncias do caso concreto.</p>
+      </div>
+      <div class="principle-card">
+        <p class="principle-num">Princípio 03</p>
+        <p class="principle-title">Legalidade</p>
+        <p class="principle-desc">Toda sanção deve respeitar a legislação trabalhista, convenções coletivas e regulamentos internos válidos e previamente comunicados ao colaborador.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. BASE LEGAL -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Base Legal</h2>
+      <span class="section-tag">Fundamentos Jurídicos</span>
+    </div>
+    <div class="legal-grid">
+      <ul class="detail-list">
+        <li><strong>CLT:</strong> prevê expressamente a suspensão disciplinar e as hipóteses de rescisão por justa causa.</li>
+        <li><strong>Poder diretivo do empregador:</strong> sustenta a aplicação de medidas como advertência verbal e escrita, desde que observados bom senso, proporcionalidade e registro.</li>
+        <li><strong>Convenção Coletiva:</strong> pode complementar regras, criar exigências procedimentais ou impor limites adicionais.</li>
+        <li><strong>Regulamento Interno TATÁ:</strong> normas internas aceitas na admissão têm força obrigacional, desde que não contrariem a legislação.</li>
+      </ul>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="info-box"><strong>Orientação:</strong> sempre consulte o RH antes de aplicar qualquer sanção formal. Em medidas mais graves, o alinhamento com o Jurídico também é recomendado.</div>
+        <div class="alert-box"><strong>⚠ Atenção:</strong> sanções sem base normativa, sem prova adequada ou aplicadas de forma desproporcional podem ser revertidas na Justiça do Trabalho.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TIPOS DE SANÇÃO -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Tipos de Sanções</h2>
+      <span class="section-tag">Escala Disciplinar</span>
+    </div>
+    <div class="levels-grid" style="margin-bottom:16px;">
+      <div class="level-card level-1">
+        <div class="level-header">Nível 01 · Orientativo</div>
+        <div class="level-body">
+          <p class="level-title">Advertência Verbal</p>
+          <p class="level-desc">Conversa direta e reservada. Embora informal, deve ser registrada internamente com data, contexto e orientação dada ao colaborador.</p>
+        </div>
+      </div>
+      <div class="level-card level-2">
+        <div class="level-header">Nível 02 · Formal</div>
+        <div class="level-body">
+          <p class="level-title">Advertência Escrita</p>
+          <p class="level-desc">Documento formal com descrição objetiva da conduta, norma violada e orientação sobre reincidência.</p>
+        </div>
+      </div>
+      <div class="level-card level-3">
+        <div class="level-header">Nível 03 · Grave</div>
+        <div class="level-body">
+          <p class="level-title">Suspensão</p>
+          <p class="level-desc">Afastamento sem remuneração, aplicável em casos mais graves ou reincidentes. Exige validação prévia do RH.</p>
+        </div>
+      </div>
+      <div class="level-card level-4">
+        <div class="level-header">Nível 04 · Máximo</div>
+        <div class="level-body">
+          <p class="level-title">Demissão por Justa Causa</p>
+          <p class="level-desc">Medida extrema, cabível apenas quando houver hipótese legal, prova consistente, proporcionalidade e imediatidade razoável.</p>
+        </div>
+      </div>
+    </div>
+    <div class="amber-box"><strong>Regra prática:</strong> em regra, a empresa observa a gradação das medidas disciplinares. Em faltas graves, porém, pode haver aplicação imediata de medida mais severa, desde que o caso esteja bem documentado e validado pelo RH.</div>
+  </section>
+
+  <!-- 4. ADVERTÊNCIA VERBAL -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Advertência Verbal</h2>
+      <span class="section-tag">Nível 01</span>
+    </div>
+    <div class="two-col">
+      <ul class="detail-list">
+        <li><strong>Privacidade:</strong> nunca corrija o colaborador em público. A conversa deve ocorrer em ambiente reservado.</li>
+        <li><strong>Objetividade:</strong> trate do fato observado, não da personalidade da pessoa.</li>
+        <li><strong>Escuta ativa:</strong> permita que o colaborador explique sua versão antes de concluir.</li>
+        <li><strong>Expectativa clara:</strong> indique exatamente qual conduta deve ser corrigida.</li>
+        <li><strong>Registro interno:</strong> anote data, hora, contexto e orientação repassada.</li>
+      </ul>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="info-box">
+          <strong>Exemplo de abordagem:</strong><br><br>
+          "Fulano, preciso conversar sobre o atraso de hoje. Já tivemos outras ocorrências neste mês e isso impacta a operação. Quero entender o que aconteceu e alinhar como evitaremos novas repetições."
+        </div>
+        <div class="alert-box"><strong>Evite:</strong> tom agressivo, ironias, exposição pública, ameaças ou comparações com outros colaboradores.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ADVERTÊNCIA ESCRITA -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Advertência Escrita</h2>
+      <span class="section-tag">Nível 02</span>
+    </div>
+    <div class="two-col">
+      <div>
+        <p style="font-size:13.5px; line-height:1.65; color:#333; margin-bottom:14px;">A advertência escrita formaliza a ocorrência e integra o histórico disciplinar. O documento deve conter:</p>
+        <ul class="detail-list">
+          <li><strong>Nome completo</strong> e cargo do colaborador</li>
+          <li><strong>Data, horário e descrição objetiva</strong> da conduta observada</li>
+          <li><strong>Norma interna, procedimento ou dever funcional</strong> relacionado ao caso</li>
+          <li><strong>Orientação expressa</strong> sobre a conduta esperada daqui em diante</li>
+          <li><strong>Indicação de reincidência</strong> quando houver</li>
+          <li><strong>Assinaturas:</strong> líder responsável, RH e colaborador</li>
+          <li><strong>Testemunha</strong> quando cabível</li>
+        </ul>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="info-box">
+          <strong>Colaborador recusa assinar?</strong><br><br>
+          Registre a recusa no próprio documento e, sempre que possível, colha assinatura de testemunhas. A validade da medida não depende exclusivamente da assinatura do colaborador, mas da regularidade do procedimento e da prova.
+        </div>
+        <div class="alert-box"><strong>Imediatidade:</strong> a medida deve ser aplicada em prazo razoável após a apuração dos fatos. Demora injustificada pode enfraquecer a sanção.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. SUSPENSÃO -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Suspensão</h2>
+      <span class="section-tag">Nível 03</span>
+    </div>
+    <div class="two-col">
+      <ul class="detail-list">
+        <li><strong>Limite legal:</strong> a suspensão disciplinar não pode ultrapassar 30 dias.</li>
+        <li><strong>Sem dupla punição:</strong> não se deve aplicar penalidades acumuladas pela mesma conduta sem fundamento específico.</li>
+        <li><strong>Registro obrigatório:</strong> a suspensão deve ser formalizada por escrito, com descrição clara dos fatos e fundamento interno.</li>
+        <li><strong>RH obrigatório:</strong> comunicar e validar previamente antes de qualquer aplicação.</li>
+        <li><strong>Planejamento operacional:</strong> avaliar impactos da ausência na equipe e na operação.</li>
+      </ul>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="info-box">
+          <strong>Quando pode se justificar?</strong><br><br>
+          Em casos de reincidência relevante, descumprimento grave de procedimento, risco à segurança, prejuízo à operação ou outras situações que exijam resposta mais firme e proporcional.
+        </div>
+        <div class="alert-box"><strong>⚠ Nunca aplique suspensão</strong> sem consulta prévia ao RH. Em situações sensíveis, valide também com suporte jurídico.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. JUSTA CAUSA -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Demissão por Justa Causa</h2>
+      <span class="section-tag">Nível 04 · Máxima Gravidade</span>
+    </div>
+    <div class="table-wrap" style="margin-bottom:14px;">
+      <table class="data-table">
+        <thead>
+          <tr><th>Hipótese legal</th><th>Exemplos práticos</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ato de improbidade</td><td>Furto, fraude, desvio de valores, manipulação indevida de caixa ou patrimônio da empresa</td></tr>
+          <tr><td>Incontinência de conduta ou mau procedimento</td><td>Condutas incompatíveis com o ambiente de trabalho, incluindo, conforme o caso concreto, situações graves de assédio ou comportamento ofensivo</td></tr>
+          <tr><td>Desídia</td><td>Negligência reiterada, descuido habitual, faltas repetidas ou descompromisso persistente com as funções</td></tr>
+          <tr><td>Embriaguez em serviço ou conduta incompatível</td><td>Uso de álcool ou outras substâncias com comprometimento do trabalho, da segurança ou da operação, conforme o caso concreto</td></tr>
+          <tr><td>Insubordinação</td><td>Recusa injustificada a ordens legítimas, claras e compatíveis com a função</td></tr>
+          <tr><td>Abandono de emprego</td><td>Ausência injustificada acompanhada de elementos que indiquem intenção de não retornar ao trabalho</td></tr>
+          <tr><td>Ato lesivo à honra ou à boa fama</td><td>Ofensas graves, agressões verbais ou ataques à imagem de colegas, clientes, gestores ou da empresa</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="alert-box"><strong>Cuidado máximo:</strong> justa causa exige base legal, prova robusta, análise individual do caso, proporcionalidade e aplicação com razoável imediatidade após a apuração. Toda decisão deve passar por RH e, preferencialmente, validação jurídica.</div>
+  </section>
+
+  <!-- 8. PAPEL DO LÍDER -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">O Papel do Líder</h2>
+      <span class="section-tag">Liderança com Humanidade</span>
+    </div>
+    <div class="two-col">
+      <ul class="detail-list">
+        <li><strong>Consistência:</strong> aplicar critérios semelhantes para situações equivalentes.</li>
+        <li><strong>Fato × Pessoa:</strong> trate da conduta observada, nunca ataque a dignidade do colaborador.</li>
+        <li><strong>Imediatidade:</strong> agir no momento adequado, após apuração mínima e registro suficiente.</li>
+        <li><strong>Privacidade:</strong> conduzir o processo em ambiente reservado, sem exposição indevida.</li>
+        <li><strong>Acompanhamento:</strong> após a medida, monitorar evolução e reforçar orientação.</li>
+      </ul>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="quote-block">"O objetivo da disciplina é corrigir a conduta e preservar o ambiente de trabalho — nunca humilhar a pessoa."</div>
+        <div class="info-box"><strong>Dica prática:</strong> registre inclusive as conversas verbais. Um histórico consistente ajuda a empresa a agir com coerência e segurança.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. ERROS COMUNS -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Erros Comuns e Como Evitá-los</h2>
+      <span class="section-tag">O que não fazer</span>
+    </div>
+    <div class="error-grid">
+      <div class="error-card">
+        <p class="error-tag">Erro 01</p>
+        <p class="error-title">Punição tardia</p>
+        <p class="error-desc">Demorar excessivamente sem justificativa após tomar conhecimento da conduta. Isso pode enfraquecer a medida e sugerir tolerância da empresa.</p>
+      </div>
+      <div class="error-card">
+        <p class="error-tag">Erro 02</p>
+        <p class="error-title">Falta de registro</p>
+        <p class="error-desc">Advertir verbalmente sem qualquer anotação. Sem histórico, a progressão disciplinar fica fragilizada.</p>
+      </div>
+      <div class="error-card">
+        <p class="error-tag">Erro 03</p>
+        <p class="error-title">Tratamento desigual</p>
+        <p class="error-desc">Aplicar respostas diferentes para situações equivalentes sem critério objetivo. Isso gera sensação de injustiça e risco trabalhista.</p>
+      </div>
+      <div class="error-card">
+        <p class="error-tag">Erro 04</p>
+        <p class="error-title">Agir sem o RH</p>
+        <p class="error-desc">Aplicar suspensão ou conduzir desligamento disciplinar sem validação prévia. Casos sensíveis exigem governança.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. FLUXO DE APLICAÇÃO -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Fluxo de Aplicação</h2>
+      <span class="section-tag">Passo a Passo Prático</span>
+    </div>
+    <div class="flow-strip">
+      <div class="flow-step">
+        <p class="flow-step-num">01</p>
+        <p class="flow-step-label">Identificar</p>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <p class="flow-step-num">02</p>
+        <p class="flow-step-label">Registrar</p>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <p class="flow-step-num">03</p>
+        <p class="flow-step-label">Apurar</p>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <p class="flow-step-num">04</p>
+        <p class="flow-step-label">Validar com RH</p>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step" style="border-color:var(--green); background:var(--green-light);">
+        <p class="flow-step-num">05</p>
+        <p class="flow-step-label" style="color:var(--green);">Aplicar e Acompanhar</p>
+      </div>
+    </div>
+    <div class="flow-detail-row">
+      <ul class="detail-list">
+        <li><strong>Identificar:</strong> observar a ocorrência e separar fatos de percepções pessoais.</li>
+        <li><strong>Registrar:</strong> documentar data, horário, envolvidos, impacto e evidências disponíveis.</li>
+        <li><strong>Apurar:</strong> ouvir as partes necessárias e compreender o contexto antes de decidir.</li>
+      </ul>
+      <ul class="detail-list">
+        <li><strong>Validar com RH:</strong> alinhar a medida adequada, especialmente em casos formais.</li>
+        <li><strong>Aplicar e acompanhar:</strong> comunicar de forma privada, respeitosa e objetiva, acompanhando a evolução posterior.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 11. ENCERRAMENTO -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Pontos de Atenção</h2>
+      <span class="section-tag">Resumo para Líderes</span>
+    </div>
+    <div class="closing-grid" style="margin-bottom:20px;">
+      <div class="closing-card">
+        <p class="closing-tag">Lembre-se</p>
+        <p class="closing-title">Gradualidade</p>
+        <p class="closing-desc">Em regra, comece pela medida mais leve. Em situações graves, a resposta pode ser mais severa, desde que haja justificativa e validação.</p>
+      </div>
+      <div class="closing-card">
+        <p class="closing-tag">Lembre-se</p>
+        <p class="closing-title">Registro</p>
+        <p class="closing-desc">Toda ocorrência relevante deve ser registrada. Histórico consistente fortalece a gestão e reduz riscos.</p>
+      </div>
+      <div class="closing-card">
+        <p class="closing-tag">Lembre-se</p>
+        <p class="closing-title">RH Primeiro</p>
+        <p class="closing-desc">Antes de aplicar suspensão ou justa causa, valide com o RH. Em casos delicados, envolva também o Jurídico.</p>
+      </div>
+    </div>
+    <div class="info-box" style="max-width:760px;">
+      <strong>Dúvidas?</strong> Antes de aplicar qualquer sanção formal, especialmente suspensão ou justa causa, acione o setor de People &amp; RH. O objetivo é garantir coerência, justiça, documentação adequada e segurança para todos os envolvidos.
+    </div>
+  </section>
+
+  <!-- BACK -->
+  <div class="section" style="margin-top:8px;">
+    <a href="#" class="btn-back">← Voltar ao Índice</a>
+  </div>
+
+</div>
+</main>
+
+</body>
+</html>
