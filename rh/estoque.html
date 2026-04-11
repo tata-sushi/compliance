@@ -455,43 +455,51 @@ body {
     display: block !important;
     font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
     color: #000; padding: 28px 32px; max-width: 760px; margin: 0 auto;
-    font-size: 12px;
+    font-size: 12px; -webkit-font-smoothing: antialiased;
   }
-  .rp-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #000; }
+
+  /* ── HEADER ── */
+  .rp-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #111; }
   .rp-logo-img { width: 52px; height: 52px; object-fit: contain; flex-shrink: 0; }
   .rp-header-center { flex: 1; }
-  .rp-title-main { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3; }
+  .rp-title-main { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.4; }
   .rp-header-right { text-align: right; font-size: 10px; color: #444; line-height: 1.7; flex-shrink: 0; }
   .rp-meta-line { font-size: 10px; }
 
+  /* ── INTRO ── */
   .rp-intro { font-size: 11px; color: #222; line-height: 1.7; margin-bottom: 14px; }
-  .rp-linha { display: inline-block; border-bottom: 1px solid #000; min-width: 160px; }
-  .rp-nome { min-width: 220px; }
-  .rp-cpf  { min-width: 140px; }
+  .rp-intro-nome { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .rp-intro-label { font-size: 9px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.6px; color: #888; white-space: nowrap; }
+  .rp-linha { display: inline-block; background: #F4F4F4; border-radius: 3px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #111; min-width: 0; }
+  .rp-nome  { min-width: 220px; }
+  .rp-intro-texto { line-height: 1.7; }
 
+  /* ── TABLE ── */
   .rp-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11px; }
   .rp-table thead tr { background: #35383F; color: #fff; }
-  .rp-table th { padding: 7px 8px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  .rp-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+  .rp-table th { padding: 7px 8px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .rp-table th:nth-child(2) { text-align: left; }
+  .rp-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: center; }
+  .rp-table td:nth-child(2) { text-align: left; }
   .rp-table tbody tr:nth-child(even) { background: #f9f9f9; }
 
+  /* ── MOTIVO ── */
   .rp-motivo { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 11px; margin-bottom: 14px; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
   .rp-chk { display: inline-flex; align-items: center; gap: 4px; margin-right: 16px; }
 
+  /* ── BLOCOS ── */
   .rp-block { font-size: 11px; color: #222; line-height: 1.7; margin-bottom: 12px; }
   .rp-block ul { padding-left: 18px; margin-top: 4px; }
   .rp-block li { margin-bottom: 2px; }
   .rp-importante { font-size: 10px; color: #444; padding: 10px 12px; border: 1px solid #ddd; background: #fafafa; border-radius: 4px; }
 
+  /* ── RODAPÉ ── */
   .rp-cidade-data { font-size: 11px; text-align: right; margin: 16px 0 24px; color: #222; }
-
-  .rp-assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-bottom: 20px; }
+  .rp-assinatura-unica { max-width: 280px; margin-bottom: 20px; }
   .rp-ass-line { border-top: 1.5px solid #000; margin-bottom: 6px; }
   .rp-ass-lbl  { font-size: 10px; color: #444; }
   .rp-ass-name { font-size: 12px; font-weight: 600; margin-top: 2px; }
   .rp-ass-sub  { font-size: 10px; color: #666; }
-
-  .rp-footer-site { text-align: center; font-size: 10px; color: #aaa; padding-top: 12px; border-top: 1px solid #ddd; letter-spacing: 0.04em; }
 }
 
 /* ── DESKTOP ── */
@@ -866,7 +874,6 @@ function initApp() {
           '<div class="menu-header-name">' + u.name + '</div>' +
           '<div class="menu-header-role">' + u.role + '</div>' +
         '</div>' +
-        (u.type === 'admin' ? '<button class="menu-item" onclick="openUrlConfig()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Configurar Apps Script</button>' : '') +
         '<button class="menu-item danger" onclick="doLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Sair</button>' +
       '</div>';
   }
