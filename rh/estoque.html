@@ -1293,10 +1293,11 @@ function doSubmit() {
   setLoad(true);
   fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({lote:rows, timestamp:new Date().toISOString()}) })
     .then(function() {
-      // Gerar recibo automaticamente
       imprimirRecibo();
       closeModal();
       showToast(rows.length + (rows.length===1?' item gravado':' itens gravados') + ' no Sheets!', false);
+      // Recarregar dados do Sheets para atualizar dashboard
+      setTimeout(loadFromSheets, 1500);
     })
     .catch(function() { showToast('Erro de conexão.', true); })
     .finally(function() { setLoad(false); });
@@ -1505,8 +1506,116 @@ function init() {
   renderAlerts();
   buildSizes('sz-roupa', SZ_R);
   buildSizes('sz-calc',  SZ_C);
-  document.getElementById('footer-date').textContent = 'Atualizado em ' + new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+  document.getElementById('footer-date').textContent = 'Carregando…';
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+  loadFromSheets();
+}
+
+/* ══ LOAD FROM SHEETS ══ */
+function loadFromSheets() {
+  fetch(GAS_URL + '?action=saldo')
+    .then(function(r){ return r.json(); })
+    .then(function(saldoData) {
+      // Atualizar SALDO global
+      SALDO = saldoData;
+
+      // Recalcular DATA a partir do saldo
+      recalcData();
+
+      // Re-renderizar tudo
+      renderDash();
+      renderAlerts();
+      recalcSizes();
+
+      document.getElementById('footer-date').textContent =
+        'Atualizado em ' + new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+    })
+    .catch(function(err) {
+      console.warn('Sheets offline, usando dados locais.', err);
+      document.getElementById('footer-date').textContent =
+        'Atualizado em ' + new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}) + ' (offline)';
+    });
+}
+
+/* ══ RECALC DATA a partir do SALDO ══ */
+var CAT_MAP = {
+  'Uniformes': 'u',
+  'Calçados':  'c',
+  "EPI's":     'e',
+  'Brindes':   'b',
+  'Papelaria': 'p'
+};
+
+function recalcData() {
+  var units = ['Itaim Bibi','Pinheiros','Poke - Pinheiros','TATÁ House','Administrativo'];
+  var newData = { all: { kpi: {u:[0],c:[0],e:[0],b:[0],p:[0]}, bars: {u:[],c:[],e:[],b:[],p:[]} } };
+
+  // Acumular por unidade
+  units.forEach(function(unit) {
+    var s = SALDO[unit];
+    if (!s) return;
+
+    newData[unit] = { kpi: {u:[0],c:[0],e:[0],b:[0],p:[0]}, bars: {u:[],c:[],e:[],b:[],p:[]} };
+
+    // Mapear item → categoria pelo CATALOG
+    Object.keys(s).forEach(function(itemName) {
+      var qty = s[itemName] || 0;
+      var cat = getCatForItem(itemName);
+      var k   = CAT_MAP[cat];
+      if (!k) return;
+
+      // KPI: soma quantidade
+      newData[unit].kpi[k][0] += qty;
+      newData['all'].kpi[k][0] += qty;
+
+      // Barras
+      var barUnit = newData[unit].bars[k];
+      var barAll  = newData['all'].bars[k];
+      var eu = barUnit.find(function(x){return x.n===itemName;});
+      var ea = barAll.find(function(x){return x.n===itemName;});
+      if (eu) eu.q += qty; else barUnit.push({n:itemName, q:qty});
+      if (ea) ea.q += qty; else barAll.push({n:itemName, q:qty});
+    });
+
+    // Ordenar barras por quantidade desc e limitar a 8
+    ['u','c','e','b','p'].forEach(function(k){
+      newData[unit].bars[k].sort(function(a,b){return b.q-a.q;});
+      newData[unit].bars[k] = newData[unit].bars[k].slice(0,8);
+    });
+  });
+
+  // Ordenar barras all
+  ['u','c','e','b','p'].forEach(function(k){
+    newData['all'].bars[k].sort(function(a,b){return b.q-a.q;});
+    newData['all'].bars[k] = newData['all'].bars[k].slice(0,8);
+  });
+
+  DATA = newData;
+}
+
+function getCatForItem(itemName) {
+  var cats = Object.keys(CATALOG);
+  for (var i = 0; i < cats.length; i++) {
+    var cat = cats[i];
+    var found = CATALOG[cat].find(function(x){ return x.n === itemName; });
+    if (found) return cat;
+  }
+  // Tentar inferir pelo SALDO se não está no CATALOG
+  return 'Uniformes';
+}
+
+/* ══ RECALC SIZES a partir do SALDO ══ */
+function recalcSizes() {
+  var szRoupa = {};
+  var szCalc  = {};
+
+  SZ_ROUPA.forEach(function(s){ szRoupa[s] = 0; });
+  SZ_CALC.forEach(function(s){  szCalc[s]  = 0; });
+
+  // Agregar por tamanho — não temos tamanho no saldo (saldo é por item)
+  // Mantém os dados estáticos de tamanho até termos histórico com tamanhos
+  buildSizes('sz-roupa', SZ_R);
+  buildSizes('sz-calc',  SZ_C);
 }
 
 /* inicializar app */
