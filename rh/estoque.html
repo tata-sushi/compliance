@@ -1201,11 +1201,14 @@ function checkSaldo(rows) {
     .map(function(item){ return {item:item, disponivel:saldo[item]||0, solicitado:req[item]}; });
 }
 
+/* ══ APPS SCRIPT URL ══ */
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzZoApfcJiSttXrwi9OtcV6Lv0PmO_moB0JC2FFbXh-5eugKCbWg0yC85gUcEqv2Cq31Q/exec';
+
 /* ══ SUBMIT ══ */
 var lastRows = []; var lastMeta = {};
 
 function doSubmit() {
-  var url = localStorage.getItem('tata_url') || '';
+  var url = GAS_URL || localStorage.getItem('tata_url') || '';
   if (!url) { showToast('Configure a URL do Apps Script no menu do perfil.', true); return; }
 
   var meta = {
@@ -1473,7 +1476,7 @@ function saveUrlConfig() {
 }
 
 function testUrlConfig() {
-  var url = document.getElementById('cfg-url-input').value.trim();
+  var url = document.getElementById('cfg-url-input').value.trim() || GAS_URL;
   if (!url) { showToast('Cole a URL antes de testar.', true); return; }
   var btn = document.getElementById('cfg-test-btn');
   btn.textContent = 'Testando…';
